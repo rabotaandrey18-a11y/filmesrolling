@@ -9,6 +9,8 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #121212;
+      /* Динамический фон за курсором */
+      background-image: radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.15), rgba(18, 18, 18, 0.95) 70%);
       color: #ffffff;
       margin: 0;
       padding: 16px;
@@ -17,6 +19,9 @@
       align-items: center;
       min-height: 100vh;
       padding-bottom: 30px;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-image 0.1s ease;
     }
 
     h1, h2 { text-align: center; margin: 0 0 15px 0; font-size: 1.4rem; }
@@ -30,6 +35,7 @@
       margin-bottom: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
       border: 1px solid #2a2a2a;
+      z-index: 2;
     }
 
     .header-bar {
@@ -39,26 +45,52 @@
       width: 100%;
       max-width: 420px;
       margin-bottom: 15px;
+      z-index: 2;
     }
     .header-bar h1 { margin: 0; word-break: break-word; }
-    .settings-btn-icon {
+    
+    .header-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
       background: #2a2a2a;
       border: 1px solid #444;
-      border-radius: 50%;
-      width: 40px; height: 40px;
+      border-radius: 20px;
+      padding: 8px 12px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 20px; color: #fff;
+      cursor: pointer; font-size: 14px; color: #fff;
       flex-shrink: 0;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
-    .settings-btn-icon:hover { background: #333; }
+    .icon-btn:hover { background: #333; }
+    .icon-btn.active { background: #1e88e5; border-color: #64b5f6; }
 
     .settings-panel {
       display: none;
       background: rgba(0,0,0,0.3);
       padding: 15px; border-radius: 12px;
       margin-bottom: 15px; border: 1px solid #444;
+      position: relative;
     }
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .poop-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+    .poop-btn:hover { transform: scale(1.2) rotate(10deg); }
+
     .settings-group { margin-bottom: 15px; }
     .settings-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; text-align: center; color: #aaa; }
     .settings-input {
@@ -77,7 +109,7 @@
       border-color: #3390ec;
     }
 
-    /* Поля ввода и Поиск */
+    /* Поля ввода */
     .input-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
     .input-row { display: flex; gap: 8px; align-items: center; position: relative; }
     .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
@@ -97,7 +129,6 @@
       background: #444; display: none; flex-shrink: 0;
     }
 
-    /* Автокомплит Кинопоиска */
     .search-results {
       position: absolute; top: 100%; left: 0; right: 0;
       background: #222; border: 1px solid #555; border-radius: 8px;
@@ -161,29 +192,178 @@
     }
     .wheel-center img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Результат */
-    .result-box {
-      text-align: center; padding: 15px; background: rgba(255,255,255,0.08);
-      border-radius: 12px; margin-top: 15px; color: #ffca28; border: 1px solid #ffca28;
-    }
-    .result-card-inner {
-      display: flex; gap: 12px; align-items: center; text-align: left; margin-top: 10px;
-    }
-    .result-card-inner img { width: 70px; height: 100px; border-radius: 6px; object-fit: cover; }
-
+    /* История */
     .history-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
     .history-list li { padding: 10px; border-bottom: 1px solid #444; font-size: 14px; color: #ccc; }
+
+    /* Окно победы (Modal) */
+    .victory-modal-overlay, .easter-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .victory-modal-overlay.active, .easter-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .victory-card {
+      background: #1e1e1e;
+      border: 2px solid #ffca28;
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255, 202, 40, 0.3);
+      transform: scale(0.7) translateY(30px);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .victory-modal-overlay.active .victory-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .victory-photo-wrapper {
+      position: relative;
+      width: 100%;
+      max-height: 250px;
+      margin: 15px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      border: 1px solid #333;
+    }
+
+    .victory-photo-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      animation: photoGlow 3s infinite alternate;
+    }
+
+    @keyframes photoGlow {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.15) contrast(1.05); }
+    }
+
+    .winner-title {
+      font-size: 1.4rem;
+      color: #ffca28;
+      margin: 10px 0 5px 0;
+    }
+
+    /* Хост Дождя */
+    #rainCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      display: block;
+    }
+
+    /* Пасхалка Карточка Gitraid */
+    .easter-card {
+      background: #1a0505;
+      border: 2px solid #e53935;
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 35px rgba(229, 57, 53, 0.5);
+    }
+    .easter-card img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #ff5252;
+      margin: 10px 0;
+    }
+
+    /* Секретный беглец (Маленькая прозрачная картинка) */
+    .runner-easter {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      width: 35px;
+      height: 35px;
+      opacity: 0.15;
+      cursor: pointer;
+      z-index: 9999;
+      object-fit: cover;
+      border-radius: 50%;
+      transition: opacity 0.3s;
+    }
+    .runner-easter:hover {
+      opacity: 0.4;
+    }
+
+    /* Состояние испуга и побега */
+    .runner-easter.jumpscare {
+      opacity: 1 !important;
+      border-radius: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      top: 0 !important;
+      left: 0 !important;
+      bottom: auto !important;
+      object-fit: contain;
+      background: rgba(0,0,0,0.9);
+      animation: shake 0.1s infinite;
+    }
+
+    .runner-easter.run-away {
+      transition: transform 0.5s ease-in, opacity 0.5s !important;
+      transform: translateX(-150vw) scale(0.2) rotate(-20deg) !important;
+      opacity: 0 !important;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(2px, 2px) rotate(0deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      40% { transform: translate(1px, -1px) rotate(-1deg); }
+      60% { transform: translate(-2px, 1px) rotate(0deg); }
+      80% { transform: translate(2px, 1px) rotate(1deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
   </style>
 </head>
 <body>
 
+  <canvas id="rainCanvas"></canvas>
+
+  <!-- Скрытый секретный беглец -->
+  <img id="runnerImg" class="runner-easter" src="photo_2026-07-22_05-47-04.jpg" onclick="triggerRunnerEaster()" title="???">
+
   <div class="header-bar">
     <h1 id="appTitle">🎬 Кино-Рулетка</h1>
-    <button class="settings-btn-icon" onclick="toggleSettings()">⚙️</button>
+    <div class="header-controls">
+      <button class="icon-btn active" id="rainBtn" onclick="toggleRain()">🌧️ Rain</button>
+      <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+    </div>
   </div>
 
   <div class="card" id="setupCard">
     <div class="settings-panel" id="settingsPanel">
+      <div class="settings-header">
+        <span style="font-size: 0.85rem; color: #888;">Панель настроек</span>
+        <button class="poop-btn" onclick="openTwitchStream()" title="Секрет...">💩</button>
+      </div>
+
       <div class="settings-group">
         <label>Название приложения:</label>
         <input type="text" id="titleInput" class="settings-input" oninput="updateAppTitle(this.value)">
@@ -220,14 +400,6 @@
     </div>
 
     <button class="btn-main" id="spinBtn" onclick="spinWheel()">🎲 КРУТИТЬ РУЛЕТКУ</button>
-
-    <div id="resultBlock" style="display: none;">
-      <div class="result-box" id="winnerDisplay"></div>
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button class="btn-main btn-reroll" onclick="spinWheel()">🔄 Реролл</button>
-        <button class="btn-main btn-save" onclick="saveWatched()">✅ Смотрим этот!</button>
-      </div>
-    </div>
     
     <button class="btn-main" style="background-color: #555; margin-top: 12px;" onclick="resetSetup()">✏️ Изменить список</button>
   </div>
@@ -240,11 +412,37 @@
     <ul class="history-list" id="historyList"></ul>
   </div>
 
-  <footer id="gitraidFooter" style="text-align:center;color:#666;padding:15px;cursor:pointer;font-size:14px;">by Gitraid</footer>
-  
-  <div id="screamer" style="display:none;position:fixed;inset:0;background:#000;z-index:999999;justify-content:center;align-items:center">
-    <img id="screamerImg" src="photo_2026-04-04_16-10-40(1).jpg" onerror="this.src='https://i.postimg.co/m28pP24Z/screamer.jpg'" style="width:100%;height:100%;object-fit:cover">
+  <!-- Модальное окно победы -->
+  <div class="victory-modal-overlay" id="victoryModal">
+    <div class="victory-card">
+      <div style="font-size: 2rem;">🏆 ПОБЕДА! 🏆</div>
+      
+      <div class="victory-photo-wrapper">
+        <img id="victoryPhoto" src="photo_2026-05-01_17-45-23.jpg" onerror="this.src='https://i.postimg.co/m28pP24Z/screamer.jpg'">
+      </div>
+
+      <div class="winner-title" id="winnerTitle">Название лота</div>
+
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn-main btn-reroll" onclick="closeVictoryModal(); spinWheel();">🔄 Реролл</button>
+        <button class="btn-main btn-save" onclick="saveWatched(); closeVictoryModal();">✅ Смотрим этот!</button>
+      </div>
+    </div>
   </div>
+
+  <!-- Пасхалка Модалка -->
+  <div class="easter-modal-overlay" id="easterModal" onclick="closeEasterModal()">
+    <div class="easter-card" onclick="event.stopPropagation()">
+      <h2 style="color: #ff5252; margin-bottom: 5px;">🔥 Secret Unlocked! 🔥</h2>
+      <p style="color: #ccc; font-size: 0.9rem; margin: 0;">By Gitraid Special Mode</p>
+      <img src="photo_2026-04-04_16-10-40.jpg" alt="Secret Homer">
+      <button class="btn-main" style="background: #e53935; margin-top: 10px;" onclick="closeEasterModal()">Закрыть</button>
+    </div>
+  </div>
+
+  <footer style="text-align:center;color:#666;padding:15px;font-size:14px;user-select:none;cursor:pointer;z-index:2;" onclick="openEasterModal()">
+    by Gitraid
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
@@ -258,6 +456,232 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
 
+    // --- Интерактивный фон за мышью ---
+    window.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth) * 100;
+      const y = (e.clientY / window.innerHeight) * 100;
+      document.body.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(30, 136, 229, 0.22), rgba(18, 18, 18, 0.96) 65%)`;
+    });
+
+    // --- Звуковой движок (Web Audio API) ---
+    function playWinSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const audioCtx = new AudioCtx();
+
+        const notes = [261.63, 329.63, 392.00, 523.25];
+        notes.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          
+          const startTime = audioCtx.currentTime + (index * 0.1);
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(startTime);
+          osc.stop(startTime + 0.4);
+        });
+      } catch (e) {
+        console.log("Audio play error", e);
+      }
+    }
+
+    // Случайные страшные звуки скримеров
+    function playScreamSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const audioCtx = new AudioCtx();
+        const soundType = Math.floor(Math.random() * 3);
+
+        if (soundType === 0) {
+          const bufferSize = audioCtx.sampleRate * 0.8;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const output = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+
+          const osc = audioCtx.createOscillator();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.8);
+
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+
+          noise.connect(gain);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          noise.start();
+          osc.start();
+          noise.stop(audioCtx.currentTime + 0.8);
+          osc.stop(audioCtx.currentTime + 0.8);
+        } 
+        else if (soundType === 1) {
+          const osc = audioCtx.createOscillator();
+          const osc2 = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sawtooth';
+          osc2.type = 'square';
+
+          osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+          osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.9);
+
+          osc2.frequency.setValueAtTime(153, audioCtx.currentTime);
+          osc2.frequency.linearRampToValueAtTime(43, audioCtx.currentTime + 0.9);
+
+          gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.9);
+
+          osc.connect(gain);
+          osc2.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc2.start();
+          osc.stop(audioCtx.currentTime + 0.9);
+          osc2.stop(audioCtx.currentTime + 0.9);
+        } 
+        else {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+          osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.2);
+          osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.7);
+
+          gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.7);
+        }
+      } catch(e) {}
+    }
+
+    // Ссылка на Twitch
+    function openTwitchStream() {
+      window.open('https://www.twitch.tv/hang_il', '_blank');
+    }
+
+    // --- Дождь (Rain Effect) ---
+    let isRaining = true; // Дождь включен сразу
+    let rainAnimId = null;
+    const rainCanvas = document.getElementById('rainCanvas');
+    const rainCtx = rainCanvas.getContext('2d');
+    let drops = [];
+
+    function initRain() {
+      rainCanvas.width = window.innerWidth;
+      rainCanvas.height = window.innerHeight;
+      drops = [];
+      for (let i = 0; i < 120; i++) {
+        drops.push({
+          x: Math.random() * rainCanvas.width,
+          y: Math.random() * rainCanvas.height,
+          length: Math.random() * 20 + 10,
+          speed: Math.random() * 10 + 10,
+          opacity: Math.random() * 0.4 + 0.2
+        });
+      }
+    }
+
+    function drawRain() {
+      if (!isRaining) return;
+      rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+      rainCtx.strokeStyle = 'rgba(174, 194, 224, 0.6)';
+      rainCtx.lineWidth = 1.5;
+      rainCtx.lineCap = 'round';
+
+      drops.forEach(drop => {
+        rainCtx.beginPath();
+        rainCtx.moveTo(drop.x, drop.y);
+        rainCtx.lineTo(drop.x - drop.length * 0.2, drop.y + drop.length);
+        rainCtx.stroke();
+
+        drop.y += drop.speed;
+        drop.x -= drop.speed * 0.2;
+
+        if (drop.y > rainCanvas.height) {
+          drop.y = -drop.length;
+          drop.x = Math.random() * rainCanvas.width;
+        }
+      });
+
+      rainAnimId = requestAnimationFrame(drawRain);
+    }
+
+    function toggleRain() {
+      isRaining = !isRaining;
+      const btn = document.getElementById('rainBtn');
+      if (isRaining) {
+        btn.classList.add('active');
+        rainCanvas.style.display = 'block';
+        initRain();
+        drawRain();
+      } else {
+        btn.classList.remove('active');
+        rainCanvas.style.display = 'none';
+        cancelAnimationFrame(rainAnimId);
+      }
+    }
+
+    // Запуск дождя сразу
+    initRain();
+    drawRain();
+
+    window.addEventListener('resize', () => {
+      if (isRaining) initRain();
+    });
+
+    // --- Пасхалки ---
+    function openEasterModal() {
+      playScreamSound();
+      document.getElementById('easterModal').classList.add('active');
+    }
+
+    function closeEasterModal() {
+      document.getElementById('easterModal').classList.remove('active');
+    }
+
+    // Пасхалка: Выбегающий чувак
+    function triggerRunnerEaster() {
+      const img = document.getElementById('runnerImg');
+      if (img.classList.contains('jumpscare') || img.classList.contains('run-away')) return;
+
+      playScreamSound();
+      img.classList.add('jumpscare');
+
+      setTimeout(() => {
+        img.classList.remove('jumpscare');
+        img.classList.add('run-away');
+      }, 700);
+
+      setTimeout(() => {
+        img.style.display = 'none';
+      }, 1300);
+    }
+
+    // --- Основной функционал ---
     function loadSavedSettings() {
       const savedTitle = localStorage.getItem('app_title') || '🎬 Кино-Рулетка';
       document.getElementById('appTitle').innerText = savedTitle;
@@ -477,7 +901,6 @@
 
       spinBtn.disabled = true;
       arrow.classList.add('spinning');
-      document.getElementById('resultBlock').style.display = 'none';
 
       const num = movieData.length;
       const winnerIndex = Math.floor(Math.random() * num);
@@ -499,26 +922,20 @@
 
     function showResult() {
       const item = movieData[currentWinnerIndex];
-      const display = document.getElementById('winnerDisplay');
+      document.getElementById('winnerTitle').innerText = item.title;
       
-      let html = `🎉 Выпал фильм:<br><strong style="font-size: 1.3rem;">${item.title}</strong>`;
-      if (item.poster) {
-        html += `
-          <div class="result-card-inner">
-            <img src="${item.poster}" />
-            <div>
-              <p style="margin: 0; color: #fff;"><strong>Жанр:</strong> ${item.genre || 'Кино'}</p>
-            </div>
-          </div>
-        `;
-      }
-      
-      display.innerHTML = html;
-      document.getElementById('resultBlock').style.display = 'block';
+      const modal = document.getElementById('victoryModal');
+      modal.classList.add('active');
+
+      playWinSound();
 
       if (window.confetti) {
         confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
       }
+    }
+
+    function closeVictoryModal() {
+      document.getElementById('victoryModal').classList.remove('active');
     }
 
     function resetSetup() {
@@ -555,14 +972,6 @@
         renderHistory();
       }
     }
-
-    // Пасхалка
-    document.getElementById('gitraidFooter').onclick = () => {
-      let s = document.getElementById('screamer');
-      s.style.display = 'flex';
-      if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
-      setTimeout(() => s.style.display = 'none', 2500);
-    };
 
     loadSavedSettings();
     renderInputs();
