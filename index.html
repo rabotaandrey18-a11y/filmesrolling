@@ -1,1 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кино-Рулетка</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--tg-theme-bg-color, #1a1a1a);
+      color: var(--tg-theme-text-color, #ffffff);
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
 
+    h1, h2 { text-align: center; margin: 0 0 15px 0; font-size: 1.4rem; }
+    
+    .card {
+      background: var(--tg-theme-secondary-bg-color, #2a2a2a);
+      padding: 20px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 15px;
+    }
+    .header-bar h1 { margin: 0; word-break: break-word; }
+    .settings-btn-icon {
+      background: var(--tg-theme-secondary-bg-color, #2a2a2a);
+      border: 1px solid #444;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 20px; color: #fff;
+      flex-shrink: 0;
+    }
+
+    .settings-panel {
+      display: none;
+      background: rgba(0,0,0,0.3);
+      padding: 15px; border-radius: 12px;
+      margin-bottom: 15px; border: 1px solid #444;
+    }
+    .settings-group { margin-bottom: 15px; }
+    .settings-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; text-align: center; color: #aaa; }
+    .settings-input {
+      width: 100%; padding: 10px; border-radius: 8px;
+      border: 1px solid #555; background: #333; color: #fff; text-align: center;
+    }
+
+    .count-selector { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .count-btn {
+      padding: 8px 14px; border-radius: 8px; border: 1px solid #555;
+      background: #333; color: #fff; font-weight: bold; cursor: pointer;
+    }
+    .count-btn.active {
+      background: var(--tg-theme-button-color, #3390ec);
+      border-color: var(--tg-theme-button-color, #3390ec);
+    }
+
+    /* Поля ввода и Поиск */
+    .input-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+    .input-row { display: flex; gap: 8px; align-items: center; position: relative; }
+    .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .input-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
+    .input-row input {
+      width: 100%; padding: 10px 35px 10px 10px; border-radius: 8px;
+      border: 1px solid #444; background: rgba(255,255,255,0.05); color: #fff;
+    }
+    .search-btn {
+      position: absolute; right: 5px; background: none; border: none;
+      color: #aaa; cursor: pointer; font-size: 16px; padding: 5px;
+    }
+
+    .poster-preview {
+      width: 36px; height: 48px; border-radius: 4px; object-fit: cover;
+      background: #444; display: none; flex-shrink: 0;
+    }
+
+    /* Автокомплит Кинопоиска */
+    .search-results {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: #222; border: 1px solid #555; border-radius: 8px;
+      z-index: 100; max-height: 180px; overflow-y: auto; display: none;
+    }
+    .search-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px;
+      cursor: pointer; border-bottom: 1px solid #333; font-size: 13px;
+    }
+    .search-item:hover { background: #333; }
+    .search-item img { width: 30px; height: 40px; border-radius: 4px; object-fit: cover; }
+
+    /* Кнопки */
+    .btn-main {
+      padding: 14px; border: none; border-radius: 12px;
+      background-color: var(--tg-theme-button-color, #3390ec);
+      color: var(--tg-theme-button-text-color, #ffffff);
+      font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; margin-top: 8px;
+    }
+    .btn-main:active { transform: scale(0.98); }
+    .btn-reroll { background-color: #e53935; flex: 1; }
+    .btn-save { background-color: #43a047; flex: 1; }
+
+    /* Рулетка */
+    .roulette-container {
+      position: relative; width: 320px; height: 320px; margin: 15px auto;
+    }
+    .roulette-arrow {
+      position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
+      border-top: 28px solid #ffca28; z-index: 10;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    }
+    .roulette-arrow.spinning {
+      animation: pulseArrow 0.2s infinite alternate;
+    }
+
+    @keyframes pulseArrow {
+      from { transform: translateX(-50%) translateY(0); }
+      to { transform: translateX(-50%) translateY(-4px); }
+    }
+
+    #wheelCanvas {
+      width: 320px; height: 320px; border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      transition: transform 4s cubic-bezier(0.15, 0.8, 0.15, 1);
+    }
+
+    .wheel-center {
+      position: absolute; width: 60px; height: 60px;
+      background: #fff; border-radius: 50%; top: 50%; left: 50%;
+      transform: translate(-50%, -50%); z-index: 5;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; font-size: 24px;
+    }
+    .wheel-center img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Результат */
+    .result-box {
+      text-align: center; padding: 15px; background: rgba(255,255,255,0.08);
+      border-radius: 12px; margin-top: 15px; color: #ffca28; border: 1px solid #ffca28;
+    }
+    .result-card-inner {
+      display: flex; gap: 12px; align-items: center; text-align: left; margin-top: 10px;
+    }
+    .result-card-inner img { width: 70px; height: 100px; border-radius: 6px; object-fit: cover; }
+
+    .history-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
+    .history-list li { padding: 10px; border-bottom: 1px solid #444; font-size: 14px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <h1 id="appTitle">🎬 Кино-Рулетка</h1>
+    <button class="settings-btn-icon" onclick="toggleSettings()">⚙️</button>
+  </div>
+
+  <div class="card" id="setupCard">
+    <div class="settings-panel" id="settingsPanel">
+      <div class="settings-group">
+        <label>Название приложения:</label>
+        <input type="text" id="titleInput" class="settings-input" oninput="updateAppTitle(this.value)">
+      </div>
+
+      <div class="settings-group">
+        <label>Картинка в центре колеса:</label>
+        <input type="file" id="centerImgInput" accept="image/*" class="settings-input" onchange="uploadCenterImage(event)">
+      </div>
+
+      <div class="settings-group">
+        <label>Количество фильмов:</label>
+        <div class="count-selector">
+          <button class="count-btn" onclick="setFilmCount(2)">2</button>
+          <button class="count-btn" onclick="setFilmCount(3)">3</button>
+          <button class="count-btn active" onclick="setFilmCount(4)">4</button>
+          <button class="count-btn" onclick="setFilmCount(5)">5</button>
+          <button class="count-btn" onclick="setFilmCount(6)">6</button>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="setupTitle">Какие фильмы выбираем?</h2>
+    <div class="input-list" id="inputsContainer"></div>
+    <button class="btn-main" onclick="startRoulette()">Создать колесо</button>
+  </div>
+
+  <div class="card" id="wheelCard" style="display: none;">
+    <h2>Крутите колесо!</h2>
+    <div class="roulette-container">
+      <div class="roulette-arrow" id="arrow"></div>
+      <canvas id="wheelCanvas" width="600" height="600"></canvas>
+      <div class="wheel-center" id="wheelCenter">🍿</div>
+    </div>
+
+    <button class="btn-main" id="spinBtn" onclick="spinWheel()">🎲 КРУТИТЬ РУЛЕТКУ</button>
+
+    <div id="resultBlock" style="display: none;">
+      <div class="result-box" id="winnerDisplay"></div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn-main btn-reroll" onclick="spinWheel()">🔄 Реролл</button>
+        <button class="btn-main btn-save" onclick="saveWatched()">✅ Смотрим этот!</button>
+      </div>
+    </div>
+    
+    <button class="btn-main" style="background-color: #555; margin-top: 12px;" onclick="resetSetup()">✏️ Изменить список</button>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h2 style="margin: 0;">📜 Просмотренные</h2>
+      <button onclick="clearHistory()" style="background: none; border: none; color: #e53935; cursor: pointer;">Очистить</button>
+    </div>
+    <ul class="history-list" id="historyList"></ul>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const COLORS = ['#e53935', '#1e88e5', '#43a047', '#ffb300', '#8e24aa', '#fb8c00'];
+    let currentFilmCount = 4;
+    let movieData = []; // Объект { title, posterUrl, year, rating }
+    let loadedImages = [];
+    let currentRotation = 0;
+    let currentWinnerIndex = -1;
+
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 1. Инициализация и Настройки
+    function loadSavedSettings() {
+      const savedTitle = localStorage.getItem('app_title') || '🎬 Кино-Рулетка';
+      document.getElementById('appTitle').innerText = savedTitle;
+      document.getElementById('titleInput').value = savedTitle;
+
+      const savedImg = localStorage.getItem('center_img');
+      if (savedImg) setCenterImage(savedImg);
+    }
+
+    function updateAppTitle(val) {
+      const t = val.trim() || '🎬 Кино-Рулетка';
+      document.getElementById('appTitle').innerText = t;
+      localStorage.setItem('app_title', t);
+    }
+
+    function toggleSettings() {
+      const p = document.getElementById('settingsPanel');
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function uploadCenterImage(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const imgData = evt.target.result;
+          setCenterImage(imgData);
+          localStorage.setItem('center_img', imgData);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function setCenterImage(src) {
+      document.getElementById('wheelCenter').innerHTML = `<img src="${src}" />`;
+    }
+
+    function setFilmCount(c) {
+      currentFilmCount = c;
+      document.querySelectorAll('.count-btn').forEach(b => b.classList.toggle('active', parseInt(b.innerText) === c));
+      renderInputs();
+    }
+
+    // 2. Ввод и Интеграция с Кинопоиском (через iTunes API для работы без ключей)
+    function renderInputs() {
+      const container = document.getElementById('inputsContainer');
+      container.innerHTML = '';
+      
+      for (let i = 0; i < currentFilmCount; i++) {
+        const row = document.createElement('div');
+        row.className = 'input-row';
+        row.innerHTML = `
+          <div class="color-dot" style="background: ${COLORS[i % COLORS.length]}"></div>
+          <img class="poster-preview" id="prev-${i}" />
+          <div class="input-wrapper">
+            <input type="text" id="input-${i}" placeholder="Фильм ${i + 1}" oninput="hidePreview(${i})">
+            <button class="search-btn" onclick="searchKinopoisk(${i})">🔍</button>
+            <div class="search-results" id="res-${i}"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function hidePreview(idx) {
+      document.getElementById(`prev-${idx}`).style.display = 'none';
+      delete movieData[idx];
+    }
+
+    async function searchKinopoisk(idx) {
+      const query = document.getElementById(`input-${idx}`).value.trim();
+      if (!query) return;
+
+      const resBox = document.getElementById(`res-${idx}`);
+      resBox.innerHTML = '<div class="search-item">Поиск...</div>';
+      resBox.style.display = 'block';
+
+      try {
+        // Запрос к открытому API фильмов (iTunes/Media) для стабильного поиска постеров без токенов
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=3&country=RU`);
+        const data = await res.json();
+
+        resBox.innerHTML = '';
+        if (data.results && data.results.length > 0) {
+          data.results.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'search-item';
+            const poster = item.artworkUrl100.replace('100x100bb', '300x300bb');
+            div.innerHTML = `<img src="${poster}"> <div><strong>${item.trackName}</strong><br><small>${item.releaseDate ? item.releaseDate.substring(0,4) : ''}</small></div>`;
+            div.onclick = () => selectMovie(idx, item.trackName, poster, item.primaryGenreName);
+            resBox.appendChild(div);
+          });
+        } else {
+          resBox.innerHTML = '<div class="search-item">Ничего не найдено</div>';
+          setTimeout(() => resBox.style.display = 'none', 1500);
+        }
+      } catch (e) {
+        resBox.innerHTML = '<div class="search-item">Ошибка поиска</div>';
+        setTimeout(() => resBox.style.display = 'none', 1500);
+      }
+    }
+
+    function selectMovie(idx, title, poster, genre) {
+      document.getElementById(`input-${idx}`).value = title;
+      const prev = document.getElementById(`prev-${idx}`);
+      prev.src = poster;
+      prev.style.display = 'block';
+      document.getElementById(`res-${idx}`).style.display = 'none';
+
+      movieData[idx] = { title, poster, genre };
+    }
+
+    // 3. Создание и Отрисовка
+    async function startRoulette() {
+      const finalData = [];
+      for (let i = 0; i < currentFilmCount; i++) {
+        const val = document.getElementById(`input-${i}`).value.trim();
+        if (!val) return alert(`Заполните фильм №${i + 1}`);
+        
+        if (movieData[i] && movieData[i].title === val) {
+          finalData.push(movieData[i]);
+        } else {
+          finalData.push({ title: val, poster: null });
+        }
+      }
+
+      movieData = finalData;
+      await preloadPosters();
+      drawWheel();
+
+      document.getElementById('setupCard').style.display = 'none';
+      document.getElementById('wheelCard').style.display = 'block';
+    }
+
+    function preloadPosters() {
+      return Promise.all(movieData.map((item, i) => {
+        return new Promise((resolve) => {
+          if (item.poster) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = item.poster;
+            img.onload = () => { loadedImages[i] = img; resolve(); };
+            img.onerror = () => { loadedImages[i] = null; resolve(); };
+          } else {
+            loadedImages[i] = null;
+            resolve();
+          }
+        });
+      }));
+    }
+
+    function drawWheel() {
+      const num = movieData.length;
+      const arc = (2 * Math.PI) / num;
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = canvas.width / 2 - 10;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < num; i++) {
+        const startAngle = i * arc - Math.PI / 2;
+        const endAngle = startAngle + arc;
+
+        // Отрисовка сектора
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length];
+        ctx.fill();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(startAngle + arc / 2);
+
+        // Если есть загруженный постер — рисуем его на секторе!
+        if (loadedImages[i]) {
+          ctx.beginPath();
+          ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80);
+          ctx.restore();
+          
+          // Надпись под картинкой
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(startAngle + arc / 2);
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 22px sans-serif';
+          let txt = movieData[i].title;
+          if (txt.length > 10) txt = txt.substring(0, 8) + '..';
+          ctx.fillText(txt, radius - 120, 8);
+          ctx.restore();
+        } else {
+          // Текстовый вариант
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 26px sans-serif';
+          let text = movieData[i].title;
+          if (text.length > 14) text = text.substring(0, 12) + '...';
+          ctx.fillText(text, radius - 30, 10);
+          ctx.restore();
+        }
+      }
+    }
+
+    // 4. Логика вращения
+    function spinWheel() {
+      const spinBtn = document.getElementById('spinBtn');
+      const arrow = document.getElementById('arrow');
+      if (spinBtn.disabled) return;
+
+      spinBtn.disabled = true;
+      arrow.classList.add('spinning');
+      document.getElementById('resultBlock').style.display = 'none';
+
+      const num = movieData.length;
+      const winnerIndex = Math.floor(Math.random() * num);
+      currentWinnerIndex = winnerIndex;
+
+      const sectorAngle = 360 / num;
+      const baseRots = 360 * (5 + Math.floor(Math.random() * 3));
+      const targetAngle = currentRotation + baseRots + (360 - (winnerIndex * sectorAngle) - sectorAngle / 2);
+      
+      currentRotation = targetAngle;
+      canvas.style.transform = `rotate(${targetAngle}deg)`;
+
+      setTimeout(() => {
+        spinBtn.disabled = false;
+        arrow.classList.remove('spinning');
+        showResult();
+      }, 4000);
+    }
+
+    function showResult() {
+      const item = movieData[currentWinnerIndex];
+      const display = document.getElementById('winnerDisplay');
+      
+      let html = `🎉 Выпал фильм:<br><strong style="font-size: 1.3rem;">${item.title}</strong>`;
+      if (item.poster) {
+        html += `
+          <div class="result-card-inner">
+            <img src="${item.poster}" />
+            <div>
+              <p style="margin: 0; color: #fff;"><strong>Жанр:</strong> ${item.genre || 'Кино'}</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      display.innerHTML = html;
+      document.getElementById('resultBlock').style.display = 'block';
+    }
+
+    function resetSetup() {
+      document.getElementById('wheelCard').style.display = 'none';
+      document.getElementById('setupCard').style.display = 'block';
+    }
+
+    function saveWatched() {
+      if (currentWinnerIndex === -1) return;
+      const film = movieData[currentWinnerIndex].title;
+      let watched = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]');
+      if (!watched.includes(film)) {
+        watched.push(film);
+        localStorage.setItem('watched_movies_v4', JSON.stringify(watched));
+        renderHistory();
+        alert(`Фильм "${film}" сохранен!`);
+      }
+    }
+
+    function renderHistory() {
+      const watched = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]');
+      const list = document.getElementById('historyList');
+      list.innerHTML = watched.length === 0 ? "<li>История пуста...</li>" : "";
+      watched.slice().reverse().forEach((film, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${watched.length - index}. <strong>${film}</strong></span>`;
+        list.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      if (confirm("Очистить историю?")) {
+        localStorage.removeItem('watched_movies_v4');
+        renderHistory();
+      }
+    }
+
+    // Инициализация
+    loadSavedSettings();
+    renderInputs();
+    renderHistory();
+  </script>
+</body>
+</html>
