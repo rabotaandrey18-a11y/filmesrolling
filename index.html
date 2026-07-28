@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кино-Рулетка</title>
+  <title>Кино-Рулетка & Doodle Village: Long Jumps</title>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #121212;
-      /* Динамический фон за курсором */
       background-image: radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.15), rgba(18, 18, 18, 0.95) 70%);
       color: #ffffff;
       margin: 0;
@@ -49,10 +48,7 @@
     }
     .header-bar h1 { margin: 0; word-break: break-word; }
     
-    .header-controls {
-      display: flex;
-      gap: 8px;
-    }
+    .header-controls { display: flex; gap: 8px; }
 
     .icon-btn {
       background: #2a2a2a;
@@ -61,34 +57,18 @@
       padding: 8px 12px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; font-size: 14px; color: #fff;
-      flex-shrink: 0;
-      transition: all 0.2s;
+      flex-shrink: 0; transition: all 0.2s;
     }
     .icon-btn:hover { background: #333; }
     .icon-btn.active { background: #1e88e5; border-color: #64b5f6; }
 
     .settings-panel {
-      display: none;
-      background: rgba(0,0,0,0.3);
-      padding: 15px; border-radius: 12px;
-      margin-bottom: 15px; border: 1px solid #444;
+      display: none; background: rgba(0,0,0,0.3); padding: 15px;
+      border-radius: 12px; margin-bottom: 15px; border: 1px solid #444;
       position: relative;
     }
-    .settings-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .poop-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      transition: transform 0.2s;
-    }
+    .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .poop-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; transition: transform 0.2s; }
     .poop-btn:hover { transform: scale(1.2) rotate(10deg); }
 
     .settings-group { margin-bottom: 15px; }
@@ -101,75 +81,49 @@
     .count-selector { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     .count-btn {
       padding: 8px 14px; border-radius: 8px; border: 1px solid #555;
-      background: #333; color: #fff; font-weight: bold; cursor: pointer;
-      transition: all 0.2s;
+      background: #333; color: #fff; font-weight: bold; cursor: pointer; transition: all 0.2s;
     }
-    .count-btn.active {
-      background: #3390ec;
-      border-color: #3390ec;
-    }
+    .count-btn.active { background: #3390ec; border-color: #3390ec; }
 
-    /* Поля ввода */
     .input-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
     .input-row { display: flex; gap: 8px; align-items: center; position: relative; }
     .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
     .input-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
     .input-row input {
       width: 100%; padding: 10px 35px 10px 10px; border-radius: 8px;
-      border: 1px solid #444; background: rgba(255,255,255,0.05); color: #fff;
-      font-size: 14px;
+      border: 1px solid #444; background: rgba(255,255,255,0.05); color: #fff; font-size: 14px;
     }
-    .search-btn {
-      position: absolute; right: 5px; background: none; border: none;
-      color: #aaa; cursor: pointer; font-size: 16px; padding: 5px;
-    }
+    .search-btn { position: absolute; right: 5px; background: none; border: none; color: #aaa; cursor: pointer; font-size: 16px; padding: 5px; }
 
-    .poster-preview {
-      width: 36px; height: 48px; border-radius: 4px; object-fit: cover;
-      background: #444; display: none; flex-shrink: 0;
-    }
+    .poster-preview { width: 36px; height: 48px; border-radius: 4px; object-fit: cover; background: #444; display: none; flex-shrink: 0; }
 
     .search-results {
-      position: absolute; top: 100%; left: 0; right: 0;
-      background: #222; border: 1px solid #555; border-radius: 8px;
-      z-index: 100; max-height: 180px; overflow-y: auto; display: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      position: absolute; top: 100%; left: 0; right: 0; background: #222;
+      border: 1px solid #555; border-radius: 8px; z-index: 100; max-height: 180px;
+      overflow-y: auto; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-    .search-item {
-      display: flex; align-items: center; gap: 10px; padding: 8px;
-      cursor: pointer; border-bottom: 1px solid #333; font-size: 13px;
-    }
+    .search-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-bottom: 1px solid #333; font-size: 13px; }
     .search-item:hover { background: #333; }
     .search-item img { width: 30px; height: 40px; border-radius: 4px; object-fit: cover; }
 
-    /* Кнопки */
     .btn-main {
       padding: 14px; border: none; border-radius: 12px;
-      background-color: #3390ec;
-      color: #ffffff;
+      background-color: #3390ec; color: #ffffff;
       font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; margin-top: 8px;
       transition: background 0.2s, transform 0.1s;
     }
     .btn-main:hover { background-color: #287bc7; }
     .btn-main:active { transform: scale(0.98); }
     .btn-reroll { background-color: #e53935; flex: 1; }
-    .btn-reroll:hover { background-color: #c62828; }
     .btn-save { background-color: #43a047; flex: 1; }
-    .btn-save:hover { background-color: #2e7d32; }
 
-    /* Рулетка */
-    .roulette-container {
-      position: relative; width: 320px; height: 320px; margin: 15px auto;
-    }
+    .roulette-container { position: relative; width: 320px; height: 320px; margin: 15px auto; }
     .roulette-arrow {
       position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
       width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
-      border-top: 28px solid #ffca28; z-index: 10;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+      border-top: 28px solid #ffca28; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
     }
-    .roulette-arrow.spinning {
-      animation: pulseArrow 0.2s infinite alternate;
-    }
+    .roulette-arrow.spinning { animation: pulseArrow 0.2s infinite alternate; }
 
     @keyframes pulseArrow {
       from { transform: translateX(-50%) translateY(0); }
@@ -192,144 +146,76 @@
     }
     .wheel-center img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* История */
     .history-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
     .history-list li { padding: 10px; border-bottom: 1px solid #444; font-size: 14px; color: #ccc; }
 
-    /* Окно победы (Modal) */
+    /* ИГРОВОЙ ЭКРАН */
+    #gameCard { display: none; padding: 0; overflow: hidden; position: relative; border-radius: 16px; }
+    .game-wrapper { position: relative; width: 100%; height: 540px; }
+    #gameCanvas { display: block; width: 100%; height: 100%; }
+    .game-overlay {
+      position: absolute; inset: 0;
+      background: rgba(20, 20, 30, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 10; transition: opacity 0.3s ease;
+    }
+    .game-title {
+      font-size: 26px; font-weight: bold; color: #ffca28;
+      text-shadow: 0 4px 10px rgba(255, 202, 40, 0.4);
+      margin-bottom: 15px; text-align: center;
+    }
+    .game-score-board {
+      position: absolute; top: 12px; left: 15px;
+      font-size: 16px; font-weight: bold; color: #1b5e20;
+      z-index: 5; background: rgba(255,255,255,0.85);
+      padding: 6px 14px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Модалки и дождь */
     .victory-modal-overlay, .easter-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 10000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px); z-index: 10000; display: flex;
+      justify-content: center; align-items: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
     }
-
-    .victory-modal-overlay.active, .easter-modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
+    .victory-modal-overlay.active, .easter-modal-overlay.active { opacity: 1; pointer-events: auto; }
     .victory-card {
-      background: #1e1e1e;
-      border: 2px solid #ffca28;
-      border-radius: 20px;
-      padding: 24px;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
+      background: #1e1e1e; border: 2px solid #ffca28; border-radius: 20px;
+      padding: 24px; width: 100%; max-width: 380px; text-align: center;
       box-shadow: 0 0 30px rgba(255, 202, 40, 0.3);
-      transform: scale(0.7) translateY(30px);
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform: scale(0.7) translateY(30px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
-    .victory-modal-overlay.active .victory-card {
-      transform: scale(1) translateY(0);
-    }
-
+    .victory-modal-overlay.active .victory-card { transform: scale(1) translateY(0); }
     .victory-photo-wrapper {
-      position: relative;
-      width: 100%;
-      max-height: 250px;
-      margin: 15px 0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-      border: 1px solid #333;
+      position: relative; width: 100%; max-height: 250px; margin: 15px 0;
+      border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); border: 1px solid #333;
     }
+    .victory-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .winner-title { font-size: 1.4rem; color: #ffca28; margin: 10px 0 5px 0; }
 
-    .victory-photo-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      animation: photoGlow 3s infinite alternate;
-    }
+    #rainCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 1; display: block; }
 
-    @keyframes photoGlow {
-      from { filter: brightness(1); }
-      to { filter: brightness(1.15) contrast(1.05); }
-    }
-
-    .winner-title {
-      font-size: 1.4rem;
-      color: #ffca28;
-      margin: 10px 0 5px 0;
-    }
-
-    /* Хост Дождя */
-    #rainCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1;
-      display: block;
-    }
-
-    /* Пасхалка Карточка Gitraid */
     .easter-card {
-      background: #1a0505;
-      border: 2px solid #e53935;
-      border-radius: 20px;
-      padding: 20px;
-      max-width: 380px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 0 35px rgba(229, 57, 53, 0.5);
+      background: #1a0505; border: 2px solid #e53935; border-radius: 20px;
+      padding: 20px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 0 35px rgba(229, 57, 53, 0.5);
     }
-    .easter-card img {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid #ff5252;
-      margin: 10px 0;
-    }
+    .easter-card img { width: 100%; border-radius: 12px; border: 1px solid #ff5252; margin: 10px 0; }
 
-    /* Секретный беглец (Маленькая прозрачная картинка) */
     .runner-easter {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      width: 35px;
-      height: 35px;
-      opacity: 0.15;
-      cursor: pointer;
-      z-index: 9999;
-      object-fit: cover;
-      border-radius: 50%;
-      transition: opacity 0.3s;
+      position: fixed; bottom: 10px; left: 10px; width: 35px; height: 35px;
+      opacity: 0.15; cursor: pointer; z-index: 9999; object-fit: cover; border-radius: 50%; transition: opacity 0.3s;
     }
-    .runner-easter:hover {
-      opacity: 0.4;
-    }
-
-    /* Состояние испуга и побега */
+    .runner-easter:hover { opacity: 0.4; }
     .runner-easter.jumpscare {
-      opacity: 1 !important;
-      border-radius: 0;
-      width: 100vw !important;
-      height: 100vh !important;
-      top: 0 !important;
-      left: 0 !important;
-      bottom: auto !important;
-      object-fit: contain;
-      background: rgba(0,0,0,0.9);
-      animation: shake 0.1s infinite;
+      opacity: 1 !important; border-radius: 0; width: 100vw !important; height: 100vh !important;
+      top: 0 !important; left: 0 !important; bottom: auto !important; object-fit: contain;
+      background: rgba(0,0,0,0.9); animation: shake 0.1s infinite;
     }
-
     .runner-easter.run-away {
       transition: transform 0.5s ease-in, opacity 0.5s !important;
-      transform: translateX(-150vw) scale(0.2) rotate(-20deg) !important;
-      opacity: 0 !important;
+      transform: translateX(-150vw) scale(0.2) rotate(-20deg) !important; opacity: 0 !important;
     }
 
     @keyframes shake {
@@ -346,17 +232,18 @@
 
   <canvas id="rainCanvas"></canvas>
 
-  <!-- Скрытый секретный беглец -->
-  <img id="runnerImg" class="runner-easter" src="photo_2026-07-22_05-47-04.jpg" onclick="triggerRunnerEaster()" title="???">
+  <img id="runnerImg" src="photo1.jpg" class="runner-easter" onclick="triggerRunnerEaster()" title="???">
 
   <div class="header-bar">
     <h1 id="appTitle">🎬 Кино-Рулетка</h1>
     <div class="header-controls">
+      <button class="icon-btn" id="gameToggleBtn" onclick="toggleGameMode()">🎮 Игра</button>
       <button class="icon-btn active" id="rainBtn" onclick="toggleRain()">🌧️ Rain</button>
       <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
     </div>
   </div>
 
+  <!-- Настройки -->
   <div class="card" id="setupCard">
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-header">
@@ -391,6 +278,7 @@
     <button class="btn-main" onclick="startRoulette()">Создать колесо</button>
   </div>
 
+  <!-- Колесо Рулетки -->
   <div class="card" id="wheelCard" style="display: none;">
     <h2>Крутите колесо!</h2>
     <div class="roulette-container">
@@ -400,11 +288,25 @@
     </div>
 
     <button class="btn-main" id="spinBtn" onclick="spinWheel()">🎲 КРУТИТЬ РУЛЕТКУ</button>
-    
     <button class="btn-main" style="background-color: #555; margin-top: 12px;" onclick="resetSetup()">✏️ Изменить список</button>
   </div>
 
-  <div class="card">
+  <!-- Окно Игры -->
+  <div class="card" id="gameCard">
+    <div class="game-wrapper">
+      <div class="game-score-board" id="gameScore">🌾 Высота: 0м</div>
+      
+      <div class="game-overlay" id="gameStartScreen">
+        <div class="game-title">🏡 VILLAGE JUMP: Long 🏡</div>
+        <button class="btn-main" style="width: 200px; background: #43a047;" onclick="startDoodleGame()">ИГРАТЬ</button>
+      </div>
+
+      <canvas id="gameCanvas" width="380" height="540"></canvas>
+    </div>
+  </div>
+
+  <!-- История -->
+  <div class="card" id="historyCard">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h2 style="margin: 0;">📜 Просмотренные</h2>
       <button onclick="clearHistory()" style="background: none; border: none; color: #e53935; cursor: pointer; font-weight: bold;">Очистить</button>
@@ -412,15 +314,13 @@
     <ul class="history-list" id="historyList"></ul>
   </div>
 
-  <!-- Модальное окно победы -->
+  <!-- Окно Победы -->
   <div class="victory-modal-overlay" id="victoryModal">
     <div class="victory-card">
       <div style="font-size: 2rem;">🏆 ПОБЕДА! 🏆</div>
-      
       <div class="victory-photo-wrapper">
-        <img id="victoryPhoto" src="photo_2026-05-01_17-45-23.jpg" onerror="this.src='https://i.postimg.co/m28pP24Z/screamer.jpg'">
+        <img id="victoryPhoto" src="photo2.jpg">
       </div>
-
       <div class="winner-title" id="winnerTitle">Название лота</div>
 
       <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -430,12 +330,12 @@
     </div>
   </div>
 
-  <!-- Пасхалка Модалка -->
+  <!-- Пасхалка -->
   <div class="easter-modal-overlay" id="easterModal" onclick="closeEasterModal()">
     <div class="easter-card" onclick="event.stopPropagation()">
       <h2 style="color: #ff5252; margin-bottom: 5px;">🔥 Secret Unlocked! 🔥</h2>
       <p style="color: #ccc; font-size: 0.9rem; margin: 0;">By Gitraid Special Mode</p>
-      <img src="photo_2026-04-04_16-10-40.jpg" alt="Secret Homer">
+      <img id="easterModalImg" src="photo2.jpg" alt="Secret">
       <button class="btn-main" style="background: #e53935; margin-top: 10px;" onclick="closeEasterModal()">Закрыть</button>
     </div>
   </div>
@@ -456,135 +356,40 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
 
-    // --- Интерактивный фон за мышью ---
+    // --- Интерактивный фон ---
     window.addEventListener('mousemove', (e) => {
       const x = (e.clientX / window.innerWidth) * 100;
       const y = (e.clientY / window.innerHeight) * 100;
       document.body.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(30, 136, 229, 0.22), rgba(18, 18, 18, 0.96) 65%)`;
     });
 
-    // --- Звуковой движок (Web Audio API) ---
-    function playWinSound() {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const audioCtx = new AudioCtx();
+    // --- Переключение Режимов ---
+    let isGameMode = false;
+    function toggleGameMode() {
+      isGameMode = !isGameMode;
+      const btn = document.getElementById('gameToggleBtn');
+      const gameCard = document.getElementById('gameCard');
+      const setupCard = document.getElementById('setupCard');
+      const wheelCard = document.getElementById('wheelCard');
+      const historyCard = document.getElementById('historyCard');
 
-        const notes = [261.63, 329.63, 392.00, 523.25];
-        notes.forEach((freq, index) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          
-          osc.type = 'triangle';
-          osc.frequency.value = freq;
-          
-          const startTime = audioCtx.currentTime + (index * 0.1);
-          gain.gain.setValueAtTime(0, startTime);
-          gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start(startTime);
-          osc.stop(startTime + 0.4);
-        });
-      } catch (e) {
-        console.log("Audio play error", e);
+      if (isGameMode) {
+        btn.classList.add('active');
+        setupCard.style.display = 'none';
+        wheelCard.style.display = 'none';
+        historyCard.style.display = 'none';
+        gameCard.style.display = 'block';
+      } else {
+        btn.classList.remove('active');
+        gameCard.style.display = 'none';
+        setupCard.style.display = 'block';
+        historyCard.style.display = 'block';
+        cancelAnimationFrame(gameLoopId);
       }
     }
 
-    // Случайные страшные звуки скримеров
-    function playScreamSound() {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const audioCtx = new AudioCtx();
-        const soundType = Math.floor(Math.random() * 3);
-
-        if (soundType === 0) {
-          const bufferSize = audioCtx.sampleRate * 0.8;
-          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-          const output = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-          }
-
-          const noise = audioCtx.createBufferSource();
-          noise.buffer = buffer;
-
-          const osc = audioCtx.createOscillator();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.8);
-
-          const gain = audioCtx.createGain();
-          gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-
-          noise.connect(gain);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          noise.start();
-          osc.start();
-          noise.stop(audioCtx.currentTime + 0.8);
-          osc.stop(audioCtx.currentTime + 0.8);
-        } 
-        else if (soundType === 1) {
-          const osc = audioCtx.createOscillator();
-          const osc2 = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-
-          osc.type = 'sawtooth';
-          osc2.type = 'square';
-
-          osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-          osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.9);
-
-          osc2.frequency.setValueAtTime(153, audioCtx.currentTime);
-          osc2.frequency.linearRampToValueAtTime(43, audioCtx.currentTime + 0.9);
-
-          gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.9);
-
-          osc.connect(gain);
-          osc2.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start();
-          osc2.start();
-          osc.stop(audioCtx.currentTime + 0.9);
-          osc2.stop(audioCtx.currentTime + 0.9);
-        } 
-        else {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-          osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.2);
-          osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.7);
-
-          gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.7);
-        }
-      } catch(e) {}
-    }
-
-    // Ссылка на Twitch
-    function openTwitchStream() {
-      window.open('https://www.twitch.tv/hang_il', '_blank');
-    }
-
-    // --- Дождь (Rain Effect) ---
-    let isRaining = true; // Дождь включен сразу
+    // --- Эффект Дождя ---
+    let isRaining = true;
     let rainAnimId = null;
     const rainCanvas = document.getElementById('rainCanvas');
     const rainCtx = rainCanvas.getContext('2d');
@@ -645,43 +450,245 @@
       }
     }
 
-    // Запуск дождя сразу
     initRain();
     drawRain();
 
-    window.addEventListener('resize', () => {
-      if (isRaining) initRain();
-    });
+    // --- ИГРОВОЙ ДВИЖОК: Прыжки ---
+    const gCanvas = document.getElementById('gameCanvas');
+    const gCtx = gCanvas.getContext('2d');
+    const gameScoreEl = document.getElementById('gameScore');
+    const gameStartScreen = document.getElementById('gameStartScreen');
 
-    // --- Пасхалки ---
-    function openEasterModal() {
-      playScreamSound();
-      document.getElementById('easterModal').classList.add('active');
+    const heroSprite = new Image();
+    heroSprite.src = "photo1.jpg";
+
+    const kardadpSprite = new Image();
+    kardadpSprite.src = "photo2.jpg";
+
+    let gameLoopId;
+    let gameScore = 0;
+    let cameraOffset = 0;
+
+    const doodlePlayer = {
+      x: 170, y: 360,
+      width: 44, height: 44,
+      vx: 0, vy: 0,
+      accel: 0.6,
+      friction: 0.86,
+      maxSpeed: 7,
+      gravity: 0.29,
+      jumpForce: -14.0
+    };
+
+    let gamePlatforms = [];
+    let gameEnemies = [];
+    let gameKeys = {};
+
+    window.addEventListener('keydown', e => gameKeys[e.code] = true);
+    window.addEventListener('keyup', e => gameKeys[e.code] = false);
+
+    function initDoodleGame() {
+      gameScore = 0;
+      cameraOffset = 0;
+      gameScoreEl.innerText = "🌾 Высота: 0м";
+      doodlePlayer.x = 170;
+      doodlePlayer.y = 360;
+      doodlePlayer.vx = 0;
+      doodlePlayer.vy = doodlePlayer.jumpForce;
+
+      gamePlatforms = [];
+      for (let i = 0; i < 7; i++) {
+        gamePlatforms.push({
+          x: Math.random() * 300,
+          y: 540 - (i * 90) - 40,
+          width: 70,
+          height: 14
+        });
+      }
+      gameEnemies = [];
     }
 
-    function closeEasterModal() {
-      document.getElementById('easterModal').classList.remove('active');
+    function spawnDoodleEnemy(yPos) {
+      const isKardadp = Math.random() > 0.35;
+      gameEnemies.push({
+        type: isKardadp ? 'kardadp' : 'cow',
+        x: Math.random() * 320,
+        y: yPos,
+        width: 42,
+        height: 42,
+        vx: (Math.random() - 0.5) * 2.5
+      });
     }
 
-    // Пасхалка: Выбегающий чувак
-    function triggerRunnerEaster() {
-      const img = document.getElementById('runnerImg');
-      if (img.classList.contains('jumpscare') || img.classList.contains('run-away')) return;
+    function updateDoodleGame() {
+      if (gameKeys['ArrowLeft'] || gameKeys['KeyA']) {
+        doodlePlayer.vx -= doodlePlayer.accel;
+      } else if (gameKeys['ArrowRight'] || gameKeys['KeyD']) {
+        doodlePlayer.vx += doodlePlayer.accel;
+      } else {
+        doodlePlayer.vx *= doodlePlayer.friction;
+      }
 
-      playScreamSound();
-      img.classList.add('jumpscare');
+      if (doodlePlayer.vx > doodlePlayer.maxSpeed) doodlePlayer.vx = doodlePlayer.maxSpeed;
+      if (doodlePlayer.vx < -doodlePlayer.maxSpeed) doodlePlayer.vx = -doodlePlayer.maxSpeed;
 
-      setTimeout(() => {
-        img.classList.remove('jumpscare');
-        img.classList.add('run-away');
-      }, 700);
+      doodlePlayer.x += doodlePlayer.vx;
+      doodlePlayer.vy += doodlePlayer.gravity;
+      doodlePlayer.y += doodlePlayer.vy;
 
-      setTimeout(() => {
-        img.style.display = 'none';
-      }, 1300);
+      if (doodlePlayer.x < -doodlePlayer.width) doodlePlayer.x = gCanvas.width;
+      if (doodlePlayer.x > gCanvas.width) doodlePlayer.x = -doodlePlayer.width;
+
+      if (doodlePlayer.vy > 0) {
+        gamePlatforms.forEach(p => {
+          if (
+            doodlePlayer.x + doodlePlayer.width * 0.8 > p.x &&
+            doodlePlayer.x + doodlePlayer.width * 0.2 < p.x + p.width &&
+            doodlePlayer.y + doodlePlayer.height >= p.y &&
+            doodlePlayer.y + doodlePlayer.height <= p.y + 16
+          ) {
+            doodlePlayer.vy = doodlePlayer.jumpForce;
+          }
+        });
+      }
+
+      if (doodlePlayer.y < 180) {
+        const diff = 180 - doodlePlayer.y;
+        doodlePlayer.y = 180;
+        cameraOffset += diff;
+        gameScore += Math.floor(diff);
+        gameScoreEl.innerText = "🌾 Высота: " + Math.floor(gameScore / 10) + "м";
+
+        gamePlatforms.forEach(p => {
+          p.y += diff;
+          if (p.y > gCanvas.height) {
+            p.y = 0;
+            p.x = Math.random() * (gCanvas.width - 70);
+            if (Math.random() < 0.35) spawnDoodleEnemy(-50);
+          }
+        });
+
+        gameEnemies.forEach(e => e.y += diff);
+      }
+
+      gameEnemies.forEach(e => {
+        e.x += e.vx;
+        if (e.x <= 0 || e.x + e.width >= gCanvas.width) e.vx *= -1;
+
+        if (
+          doodlePlayer.x < e.x + e.width * 0.85 &&
+          doodlePlayer.x + doodlePlayer.width * 0.85 > e.x &&
+          doodlePlayer.y < e.y + e.height * 0.85 &&
+          doodlePlayer.y + doodlePlayer.height * 0.85 > e.y
+        ) {
+          endDoodleGame();
+        }
+      });
+
+      gameEnemies = gameEnemies.filter(e => e.y < gCanvas.height + 50);
+
+      if (doodlePlayer.y > gCanvas.height) {
+        endDoodleGame();
+      }
     }
 
-    // --- Основной функционал ---
+    function drawVillageBackground() {
+      let skyGradient = gCtx.createLinearGradient(0, 0, 0, gCanvas.height);
+      skyGradient.addColorStop(0, '#87CEEB');
+      skyGradient.addColorStop(0.7, '#E0F6FF');
+      skyGradient.addColorStop(1, '#A8E063');
+      gCtx.fillStyle = skyGradient;
+      gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
+
+      gCtx.fillStyle = '#56ab2f';
+      gCtx.beginPath();
+      gCtx.arc(90, gCanvas.height + 120, 200, 0, Math.PI * 2);
+      gCtx.fill();
+
+      gCtx.fillStyle = '#388e3c';
+      gCtx.beginPath();
+      gCtx.arc(310, gCanvas.height + 100, 180, 0, Math.PI * 2);
+      gCtx.fill();
+    }
+
+    function drawDoodleGame() {
+      drawVillageBackground();
+
+      gamePlatforms.forEach(p => {
+        gCtx.fillStyle = '#8d6e63';
+        gCtx.beginPath();
+        gCtx.roundRect(p.x, p.y, p.width, p.height, 4);
+        gCtx.fill();
+        gCtx.fillStyle = '#4e342e';
+        gCtx.fillRect(p.x, p.y + p.height - 3, p.width, 3);
+      });
+
+      gameEnemies.forEach(e => {
+        if (e.type === 'cow') {
+          gCtx.beginPath();
+          gCtx.arc(e.x + 21, e.y + 21, 20, 0, Math.PI * 2);
+          gCtx.fillStyle = '#ffffff';
+          gCtx.fill();
+          gCtx.strokeStyle = '#333';
+          gCtx.lineWidth = 2;
+          gCtx.stroke();
+          gCtx.font = '22px serif';
+          gCtx.fillText('🐮', e.x + 8, e.y + 28);
+        } else {
+          // КАРДАДЕП (photo2.jpg)
+          gCtx.save();
+          gCtx.beginPath();
+          gCtx.arc(e.x + 21, e.y + 21, 21, 0, Math.PI * 2);
+          gCtx.clip();
+          gCtx.drawImage(kardadpSprite, e.x, e.y, e.width, e.height);
+          gCtx.restore();
+
+          gCtx.beginPath();
+          gCtx.arc(e.x + 21, e.y + 21, 21, 0, Math.PI * 2);
+          gCtx.strokeStyle = '#e53935';
+          gCtx.lineWidth = 3;
+          gCtx.stroke();
+        }
+      });
+
+      // ГЛАВНЫЙ ГЕРОЙ (photo1.jpg)
+      gCtx.save();
+      gCtx.beginPath();
+      gCtx.arc(doodlePlayer.x + doodlePlayer.width/2, doodlePlayer.y + doodlePlayer.height/2, doodlePlayer.width/2, 0, Math.PI * 2);
+      gCtx.clip();
+      gCtx.drawImage(heroSprite, doodlePlayer.x, doodlePlayer.y, doodlePlayer.width, doodlePlayer.height);
+      gCtx.restore();
+
+      gCtx.beginPath();
+      gCtx.arc(doodlePlayer.x + doodlePlayer.width/2, doodlePlayer.y + doodlePlayer.height/2, doodlePlayer.width/2, 0, Math.PI * 2);
+      gCtx.strokeStyle = '#2e7d32';
+      gCtx.lineWidth = 2;
+      gCtx.stroke();
+    }
+
+    function doodleLoop() {
+      updateDoodleGame();
+      drawDoodleGame();
+      gameLoopId = requestAnimationFrame(doodleLoop);
+    }
+
+    function startDoodleGame() {
+      gameStartScreen.style.opacity = '0';
+      setTimeout(() => gameStartScreen.style.display = 'none', 300);
+      initDoodleGame();
+      cancelAnimationFrame(gameLoopId);
+      doodleLoop();
+    }
+
+    function endDoodleGame() {
+      cancelAnimationFrame(gameLoopId);
+      gameStartScreen.style.display = 'flex';
+      gameStartScreen.style.opacity = '1';
+      gameStartScreen.querySelector('.game-title').innerHTML = `GAME OVER<br><span style="font-size: 16px; color: #fff;">Высота: ${Math.floor(gameScore / 10)}м</span>`;
+      gameStartScreen.querySelector('button').innerText = 'ИГРАТЬ СНОВА';
+    }
+
+    // --- Логика Рулетки ---
     function loadSavedSettings() {
       const savedTitle = localStorage.getItem('app_title') || '🎬 Кино-Рулетка';
       document.getElementById('appTitle').innerText = savedTitle;
@@ -728,7 +735,6 @@
     function renderInputs() {
       const container = document.getElementById('inputsContainer');
       container.innerHTML = '';
-      
       for (let i = 0; i < currentFilmCount; i++) {
         const row = document.createElement('div');
         row.className = 'input-row';
@@ -761,7 +767,6 @@
       try {
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=3&country=RU`);
         const data = await res.json();
-
         resBox.innerHTML = '';
         if (data.results && data.results.length > 0) {
           data.results.forEach(item => {
@@ -788,7 +793,6 @@
       prev.src = poster;
       prev.style.display = 'block';
       document.getElementById(`res-${idx}`).style.display = 'none';
-
       movieData[idx] = { title, poster, genre };
     }
 
@@ -797,7 +801,6 @@
       for (let i = 0; i < currentFilmCount; i++) {
         const val = document.getElementById(`input-${i}`).value.trim();
         if (!val) return alert(`Заполните фильм №${i + 1}`);
-        
         if (movieData[i] && movieData[i].title === val) {
           finalData.push(movieData[i]);
         } else {
@@ -923,11 +926,8 @@
     function showResult() {
       const item = movieData[currentWinnerIndex];
       document.getElementById('winnerTitle').innerText = item.title;
-      
       const modal = document.getElementById('victoryModal');
       modal.classList.add('active');
-
-      playWinSound();
 
       if (window.confetti) {
         confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
@@ -971,6 +971,27 @@
         localStorage.removeItem('watched_movies_v4');
         renderHistory();
       }
+    }
+
+    function triggerRunnerEaster() {
+      const img = document.getElementById('runnerImg');
+      if (img.classList.contains('jumpscare') || img.classList.contains('run-away')) return;
+      img.classList.add('jumpscare');
+      setTimeout(() => {
+        img.classList.remove('jumpscare');
+        img.classList.add('run-away');
+      }, 700);
+      setTimeout(() => { img.style.display = 'none'; }, 1300);
+    }
+
+    function openEasterModal() {
+      document.getElementById('easterModal').classList.add('active');
+    }
+    function closeEasterModal() {
+      document.getElementById('easterModal').classList.remove('active');
+    }
+    function openTwitchStream() {
+      window.open('https://www.twitch.tv/hang_il', '_blank');
     }
 
     loadSavedSettings();
