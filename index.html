@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Кино-Рулетка</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--tg-theme-bg-color, #1a1a1a);
-      color: var(--tg-theme-text-color, #ffffff);
+      background-color: #121212;
+      color: #ffffff;
       margin: 0;
       padding: 16px;
       display: flex;
@@ -23,13 +22,14 @@
     h1, h2 { text-align: center; margin: 0 0 15px 0; font-size: 1.4rem; }
     
     .card {
-      background: var(--tg-theme-secondary-bg-color, #2a2a2a);
+      background: #1e1e1e;
       padding: 20px;
       border-radius: 16px;
       width: 100%;
       max-width: 420px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid #2a2a2a;
     }
 
     .header-bar {
@@ -42,14 +42,16 @@
     }
     .header-bar h1 { margin: 0; word-break: break-word; }
     .settings-btn-icon {
-      background: var(--tg-theme-secondary-bg-color, #2a2a2a);
+      background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 50%;
       width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; font-size: 20px; color: #fff;
       flex-shrink: 0;
+      transition: background 0.2s;
     }
+    .settings-btn-icon:hover { background: #333; }
 
     .settings-panel {
       display: none;
@@ -68,10 +70,11 @@
     .count-btn {
       padding: 8px 14px; border-radius: 8px; border: 1px solid #555;
       background: #333; color: #fff; font-weight: bold; cursor: pointer;
+      transition: all 0.2s;
     }
     .count-btn.active {
-      background: var(--tg-theme-button-color, #3390ec);
-      border-color: var(--tg-theme-button-color, #3390ec);
+      background: #3390ec;
+      border-color: #3390ec;
     }
 
     /* Поля ввода и Поиск */
@@ -82,6 +85,7 @@
     .input-row input {
       width: 100%; padding: 10px 35px 10px 10px; border-radius: 8px;
       border: 1px solid #444; background: rgba(255,255,255,0.05); color: #fff;
+      font-size: 14px;
     }
     .search-btn {
       position: absolute; right: 5px; background: none; border: none;
@@ -98,6 +102,7 @@
       position: absolute; top: 100%; left: 0; right: 0;
       background: #222; border: 1px solid #555; border-radius: 8px;
       z-index: 100; max-height: 180px; overflow-y: auto; display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     .search-item {
       display: flex; align-items: center; gap: 10px; padding: 8px;
@@ -109,13 +114,17 @@
     /* Кнопки */
     .btn-main {
       padding: 14px; border: none; border-radius: 12px;
-      background-color: var(--tg-theme-button-color, #3390ec);
-      color: var(--tg-theme-button-text-color, #ffffff);
+      background-color: #3390ec;
+      color: #ffffff;
       font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; margin-top: 8px;
+      transition: background 0.2s, transform 0.1s;
     }
+    .btn-main:hover { background-color: #287bc7; }
     .btn-main:active { transform: scale(0.98); }
     .btn-reroll { background-color: #e53935; flex: 1; }
+    .btn-reroll:hover { background-color: #c62828; }
     .btn-save { background-color: #43a047; flex: 1; }
+    .btn-save:hover { background-color: #2e7d32; }
 
     /* Рулетка */
     .roulette-container {
@@ -226,18 +235,22 @@
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <h2 style="margin: 0;">📜 Просмотренные</h2>
-      <button onclick="clearHistory()" style="background: none; border: none; color: #e53935; cursor: pointer;">Очистить</button>
+      <button onclick="clearHistory()" style="background: none; border: none; color: #e53935; cursor: pointer; font-weight: bold;">Очистить</button>
     </div>
     <ul class="history-list" id="historyList"></ul>
   </div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+  <footer id="gitraidFooter" style="text-align:center;color:#666;padding:15px;cursor:pointer;font-size:14px;">by Gitraid</footer>
+  
+  <div id="screamer" style="display:none;position:fixed;inset:0;background:#000;z-index:999999;justify-content:center;align-items:center">
+    <img id="screamerImg" src="photo_2026-04-04_16-10-40(1).jpg" onerror="this.src='https://i.postimg.co/m28pP24Z/screamer.jpg'" style="width:100%;height:100%;object-fit:cover">
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script>
     const COLORS = ['#e53935', '#1e88e5', '#43a047', '#ffb300', '#8e24aa', '#fb8c00'];
     let currentFilmCount = 4;
-    let movieData = []; // Объект { title, posterUrl, year, rating }
+    let movieData = []; 
     let loadedImages = [];
     let currentRotation = 0;
     let currentWinnerIndex = -1;
@@ -245,7 +258,6 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
 
-    // 1. Инициализация и Настройки
     function loadSavedSettings() {
       const savedTitle = localStorage.getItem('app_title') || '🎬 Кино-Рулетка';
       document.getElementById('appTitle').innerText = savedTitle;
@@ -289,7 +301,6 @@
       renderInputs();
     }
 
-    // 2. Ввод и Интеграция с Кинопоиском (через iTunes API для работы без ключей)
     function renderInputs() {
       const container = document.getElementById('inputsContainer');
       container.innerHTML = '';
@@ -324,7 +335,6 @@
       resBox.style.display = 'block';
 
       try {
-        // Запрос к открытому API фильмов (iTunes/Media) для стабильного поиска постеров без токенов
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=3&country=RU`);
         const data = await res.json();
 
@@ -358,7 +368,6 @@
       movieData[idx] = { title, poster, genre };
     }
 
-    // 3. Создание и Отрисовка
     async function startRoulette() {
       const finalData = [];
       for (let i = 0; i < currentFilmCount; i++) {
@@ -385,7 +394,7 @@
         return new Promise((resolve) => {
           if (item.poster) {
             const img = new Image();
-            img.crossOrigin = "Anonymous";
+            img.crossOrigin = "anonymous";
             img.src = item.poster;
             img.onload = () => { loadedImages[i] = img; resolve(); };
             img.onerror = () => { loadedImages[i] = null; resolve(); };
@@ -410,7 +419,6 @@
         const startAngle = i * arc - Math.PI / 2;
         const endAngle = startAngle + arc;
 
-        // Отрисовка сектора
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, radius, startAngle, endAngle);
@@ -425,39 +433,43 @@
         ctx.translate(cx, cy);
         ctx.rotate(startAngle + arc / 2);
 
-        // Если есть загруженный постер — рисуем его на секторе!
         if (loadedImages[i]) {
-          ctx.beginPath();
-          ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2);
-          ctx.clip();
-          ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80);
-          ctx.restore();
-          
-          // Надпись под картинкой
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(startAngle + arc / 2);
-          ctx.textAlign = 'right';
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold 22px sans-serif';
-          let txt = movieData[i].title;
-          if (txt.length > 10) txt = txt.substring(0, 8) + '..';
-          ctx.fillText(txt, radius - 120, 8);
-          ctx.restore();
+          try {
+            ctx.beginPath();
+            ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80);
+            ctx.restore();
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(startAngle + arc / 2);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 22px sans-serif';
+            let txt = movieData[i].title;
+            if (txt.length > 10) txt = txt.substring(0, 8) + '..';
+            ctx.fillText(txt, radius - 120, 8);
+            ctx.restore();
+          } catch(e) {
+            drawTextSector(i, radius);
+          }
         } else {
-          // Текстовый вариант
-          ctx.textAlign = 'right';
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 26px sans-serif';
-          let text = movieData[i].title;
-          if (text.length > 14) text = text.substring(0, 12) + '...';
-          ctx.fillText(text, radius - 30, 10);
-          ctx.restore();
+          drawTextSector(i, radius);
         }
       }
     }
 
-    // 4. Логика вращения
+    function drawTextSector(i, radius) {
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 26px sans-serif';
+      let text = movieData[i].title;
+      if (text.length > 14) text = text.substring(0, 12) + '...';
+      ctx.fillText(text, radius - 30, 10);
+      ctx.restore();
+    }
+
     function spinWheel() {
       const spinBtn = document.getElementById('spinBtn');
       const arrow = document.getElementById('arrow');
@@ -503,6 +515,10 @@
       
       display.innerHTML = html;
       document.getElementById('resultBlock').style.display = 'block';
+
+      if (window.confetti) {
+        confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+      }
     }
 
     function resetSetup() {
@@ -540,7 +556,14 @@
       }
     }
 
-    // Инициализация
+    // Пасхалка
+    document.getElementById('gitraidFooter').onclick = () => {
+      let s = document.getElementById('screamer');
+      s.style.display = 'flex';
+      if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+      setTimeout(() => s.style.display = 'none', 2500);
+    };
+
     loadSavedSettings();
     renderInputs();
     renderHistory();
