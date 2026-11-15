@@ -2,36 +2,38 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#121212">
   <title>Кино-Рулетка</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #121212;
       background-image: radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.15), rgba(18, 18, 18, 0.95) 70%);
       color: #ffffff;
       margin: 0;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-bottom: 30px;
+      min-height: -webkit-fill-available;
+      padding-bottom: env(safe-area-inset-bottom, 20px);
       position: relative;
       overflow-x: hidden;
-      transition: background-image 0.1s ease;
     }
 
-    h1, h2 { text-align: center; margin: 0 0 15px 0; font-size: 1.4rem; }
+    h1, h2 { text-align: center; margin: 0 0 15px 0; font-size: 1.3rem; }
     
     .card {
       background: #1e1e1e;
-      padding: 20px;
+      padding: 16px;
       border-radius: 16px;
       width: 100%;
       max-width: 420px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
       border: 1px solid #2a2a2a;
       z-index: 2;
@@ -46,12 +48,9 @@
       margin-bottom: 15px;
       z-index: 2;
     }
-    .header-bar h1 { margin: 0; word-break: break-word; }
+    .header-bar h1 { margin: 0; word-break: break-word; font-size: 1.2rem; }
     
-    .header-controls {
-      display: flex;
-      gap: 8px;
-    }
+    .header-controls { display: flex; gap: 8px; }
 
     .icon-btn {
       background: #2a2a2a;
@@ -71,27 +70,42 @@
       background: rgba(0,0,0,0.3);
       padding: 15px; border-radius: 12px;
       margin-bottom: 15px; border: 1px solid #444;
-      position: relative;
     }
-    .settings-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+    .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    
     .poop-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
+      background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; line-height: 1;
       transition: transform 0.2s;
     }
     .poop-btn:hover { transform: scale(1.2) rotate(10deg); }
 
     .settings-group { margin-bottom: 15px; }
     .settings-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; text-align: center; color: #aaa; }
+    
+    /* Красивая кнопка выбора файла */
+    .file-upload-wrapper {
+      position: relative;
+      width: 100%;
+      text-align: center;
+    }
+    .file-upload-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #2a2a2a;
+      border: 2px dashed #555;
+      border-radius: 12px;
+      padding: 12px;
+      color: #ccc;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .file-upload-btn:hover { border-color: #3390ec; color: #fff; background: #333; }
+    .file-upload-btn svg { width: 20px; height: 20px; fill: currentColor; }
+    .file-upload-input { display: none; }
+
     .settings-input {
       width: 100%; padding: 10px; border-radius: 8px;
       border: 1px solid #555; background: #333; color: #fff; text-align: center;
@@ -103,10 +117,7 @@
       background: #333; color: #fff; font-weight: bold; cursor: pointer;
       transition: all 0.2s;
     }
-    .count-btn.active {
-      background: #3390ec;
-      border-color: #3390ec;
-    }
+    .count-btn.active { background: #3390ec; border-color: #3390ec; }
 
     .input-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
     .input-row { display: flex; gap: 8px; align-items: center; position: relative; }
@@ -142,30 +153,39 @@
 
     .btn-main {
       padding: 14px; border: none; border-radius: 12px;
-      background-color: #3390ec;
-      color: #ffffff;
+      background-color: #3390ec; color: #ffffff;
       font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; margin-top: 8px;
       transition: background 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
     }
     .btn-main:hover { background-color: #287bc7; }
-    .btn-main:active { transform: scale(0.98); }
     .btn-reroll { background-color: #e53935; flex: 1; }
     .btn-reroll:hover { background-color: #c62828; }
     .btn-save { background-color: #43a047; flex: 1; }
     .btn-save:hover { background-color: #2e7d32; }
 
-    .roulette-container {
-      position: relative; width: 320px; height: 320px; margin: 15px auto;
+    /* Эффект брызг при нажатии */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: rippleAnim 0.6s linear;
+      pointer-events: none;
     }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    .roulette-container { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1/1; margin: 15px auto; }
     .roulette-arrow {
       position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
       width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
       border-top: 28px solid #ffca28; z-index: 10;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
     }
-    .roulette-arrow.spinning {
-      animation: pulseArrow 0.2s infinite alternate;
-    }
+    .roulette-arrow.spinning { animation: pulseArrow 0.2s infinite alternate; }
 
     @keyframes pulseArrow {
       from { transform: translateX(-50%) translateY(0); }
@@ -173,13 +193,13 @@
     }
 
     #wheelCanvas {
-      width: 320px; height: 320px; border-radius: 50%;
+      width: 100%; height: 100%; border-radius: 50%;
       box-shadow: 0 0 20px rgba(0,0,0,0.6);
       transition: transform 4s cubic-bezier(0.15, 0.8, 0.15, 1);
     }
 
     .wheel-center {
-      position: absolute; width: 60px; height: 60px;
+      position: absolute; width: 20%; height: 20%;
       background: #fff; border-radius: 50%; top: 50%; left: 50%;
       transform: translate(-50%, -50%); z-index: 5;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -188,140 +208,75 @@
     }
     .wheel-center img { width: 100%; height: 100%; object-fit: cover; }
 
-    .history-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
+    .history-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
     .history-list li { padding: 10px; border-bottom: 1px solid #444; font-size: 14px; color: #ccc; }
 
-    .victory-modal-overlay, .easter-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 10000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
+    /* Модалки */
+    .victory-modal-overlay, .easter-modal-overlay, .generic-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+      z-index: 10000; display: flex; justify-content: center; align-items: center;
+      padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+    }
+    .victory-modal-overlay.active, .easter-modal-overlay.active, .generic-modal-overlay.active {
+      opacity: 1; pointer-events: auto;
     }
 
-    .victory-modal-overlay.active, .easter-modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .victory-card {
-      background: #1e1e1e;
-      border: 2px solid #ffca28;
-      border-radius: 20px;
-      padding: 24px;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
+    .victory-card, .generic-card {
+      background: #1e1e1e; border: 2px solid #ffca28; border-radius: 20px;
+      padding: 24px; width: 100%; max-width: 380px; text-align: center;
       box-shadow: 0 0 30px rgba(255, 202, 40, 0.3);
       transform: scale(0.7) translateY(30px);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-
-    .victory-modal-overlay.active .victory-card {
+    .victory-modal-overlay.active .victory-card, .generic-modal-overlay.active .generic-card {
       transform: scale(1) translateY(0);
     }
 
     .victory-photo-wrapper {
-      position: relative;
-      width: 100%;
-      max-height: 250px;
-      margin: 15px 0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      position: relative; width: 100%; max-height: 250px; margin: 15px 0;
+      border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
       border: 1px solid #333;
     }
-
     .victory-photo-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+      width: 100%; height: 100%; object-fit: cover; display: block;
       animation: photoGlow 3s infinite alternate;
     }
-
     @keyframes photoGlow {
       from { filter: brightness(1); }
       to { filter: brightness(1.15) contrast(1.05); }
     }
 
-    .winner-title {
-      font-size: 1.4rem;
-      color: #ffca28;
-      margin: 10px 0 5px 0;
-    }
+    .winner-title { font-size: 1.4rem; color: #ffca28; margin: 10px 0 5px 0; }
 
     #rainCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1;
-      display: block;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none; z-index: 1; display: block;
     }
 
     .easter-card {
-      background: #1a0505;
-      border: 2px solid #e53935;
-      border-radius: 20px;
-      padding: 20px;
-      max-width: 380px;
-      width: 100%;
-      text-align: center;
+      background: #1a0505; border: 2px solid #e53935; border-radius: 20px;
+      padding: 20px; max-width: 380px; width: 100%; text-align: center;
       box-shadow: 0 0 35px rgba(229, 57, 53, 0.5);
     }
-    .easter-card img {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid #ff5252;
-      margin: 10px 0;
-    }
+    .easter-card img { width: 100%; border-radius: 12px; border: 1px solid #ff5252; margin: 10px 0; }
 
     .runner-easter {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      width: 35px;
-      height: 35px;
-      opacity: 0.15;
-      cursor: pointer;
-      z-index: 9999;
-      object-fit: cover;
-      border-radius: 50%;
-      transition: opacity 0.3s;
+      position: fixed; bottom: 10px; left: 10px; width: 35px; height: 35px;
+      opacity: 0.15; cursor: pointer; z-index: 9999; object-fit: cover;
+      border-radius: 50%; transition: opacity 0.3s;
     }
-    .runner-easter:hover {
-      opacity: 0.4;
-    }
-
+    .runner-easter:hover { opacity: 0.4; }
     .runner-easter.jumpscare {
-      opacity: 1 !important;
-      border-radius: 0;
-      width: 100vw !important;
-      height: 100vh !important;
-      top: 0 !important;
-      left: 0 !important;
-      bottom: auto !important;
-      object-fit: contain;
-      background: rgba(0,0,0,0.9);
-      animation: shake 0.1s infinite;
+      opacity: 1 !important; border-radius: 0; width: 100vw !important; height: 100vh !important;
+      top: 0 !important; left: 0 !important; bottom: auto !important; object-fit: contain;
+      background: rgba(0,0,0,0.9); animation: shake 0.1s infinite;
     }
-
     .runner-easter.run-away {
       transition: transform 0.5s ease-in, opacity 0.5s !important;
       transform: translateX(-150vw) scale(0.2) rotate(-20deg) !important;
       opacity: 0 !important;
     }
-
     @keyframes shake {
       0% { transform: translate(2px, 2px) rotate(0deg); }
       20% { transform: translate(-3px, 0px) rotate(1deg); }
@@ -331,65 +286,44 @@
       100% { transform: translate(1px, -2px) rotate(-1deg); }
     }
 
-    /* === АНИМАЦИЯ НАЖАТИЯ КНОПОК === */
-    button {
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease;
-    }
-    button:active {
-      transform: scale(0.94);
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
-    }
-    .btn-main:active {
-      transform: scale(0.97) translateY(1px);
-    }
+    /* Анимация кнопок */
+    button { transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease; }
+    button:active { transform: scale(0.94); box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); }
+    .btn-main:active { transform: scale(0.97) translateY(1px); }
     @keyframes btnPop {
-      0%   { transform: scale(1); }
-      40%  { transform: scale(0.92); }
-      70%  { transform: scale(1.03); }
+      0% { transform: scale(1); }
+      40% { transform: scale(0.92); }
+      70% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
-    .btn-pop {
-      animation: btnPop 0.35s ease;
-    }
+    .btn-pop { animation: btnPop 0.35s ease; }
 
-    /* === ЗВЁЗДЫ В ИСТОРИИ === */
-    .history-stars {
-      display: flex;
-      gap: 2px;
-      flex-shrink: 0;
-    }
+    /* История и звезды */
+    .history-stars { display: flex; gap: 2px; flex-shrink: 0; }
     .history-star {
-      cursor: pointer;
-      font-size: 18px;
-      color: #666;
-      transition: transform 0.15s, color 0.15s;
-      user-select: none;
+      cursor: pointer; font-size: 20px; color: #666;
+      transition: transform 0.15s, color 0.15s; user-select: none;
     }
-    .history-star.filled {
-      color: #ffca28;
+    .history-star.filled { color: #ffca28; }
+    .history-star:hover { transform: scale(1.25); }
+    .history-li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid #333; }
+    .history-title { flex: 1; word-break: break-word; font-size: 14px; }
+    .history-num { color: #666; margin-right: 4px; }
+    
+    .edit-icon { cursor: pointer; color: #888; margin-left: 6px; font-size: 14px; display: inline-block; transition: color 0.2s; }
+    .edit-icon:hover { color: #fff; }
+
+    .history-controls { display: flex; gap: 8px; margin-bottom: 12px; }
+    .history-controls button {
+      flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #555;
+      background: #2a2a2a; color: #fff; font-size: 12px; cursor: pointer;
     }
-    .history-star:hover {
-      transform: scale(1.25);
-    }
-    .history-li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .history-title {
-      flex: 1;
-      word-break: break-word;
-    }
-    .history-num {
-      color: #666;
-    }
+    .history-controls button:hover { background: #333; }
   </style>
 </head>
 <body>
 
   <canvas id="rainCanvas"></canvas>
-
   <img id="runnerImg" class="runner-easter" src="photo_2026-07-22_05-47-04.jpg" onclick="triggerRunnerEaster()" title="???">
 
   <div class="header-bar">
@@ -414,7 +348,13 @@
 
       <div class="settings-group">
         <label>Картинка в центре колеса:</label>
-        <input type="file" id="centerImgInput" accept="image/*" class="settings-input" onchange="uploadCenterImage(event)">
+        <div class="file-upload-wrapper">
+          <label class="file-upload-btn" for="centerImgInput">
+            <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M12,19L8,15H10.5V12H13.5V15H16L12,19Z"/></svg>
+            Выбрать фото
+          </label>
+          <input type="file" id="centerImgInput" accept="image/*" class="file-upload-input" onchange="uploadCenterImage(event)">
+        </div>
       </div>
 
       <div class="settings-group">
@@ -441,43 +381,58 @@
       <canvas id="wheelCanvas" width="600" height="600"></canvas>
       <div class="wheel-center" id="wheelCenter">🍿</div>
     </div>
-
     <button class="btn-main" id="spinBtn" onclick="spinWheel()">🎲 КРУТИТЬ РУЛЕТКУ</button>
-    
     <button class="btn-main" style="background-color: #555; margin-top: 12px;" onclick="resetSetup()">✏️ Изменить список</button>
   </div>
 
   <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <h2 style="margin: 0;">📜 Просмотренные</h2>
       <button onclick="clearHistory()" style="background: none; border: none; color: #e53935; cursor: pointer; font-weight: bold;">Очистить</button>
     </div>
+    
+    <div class="history-controls">
+      <button onclick="exportHistory()">📤 Экспорт</button>
+      <button onclick="importHistoryPrompt()">📥 Импорт</button>
+    </div>
+
     <ul class="history-list" id="historyList"></ul>
   </div>
 
+  <!-- Модалка победы -->
   <div class="victory-modal-overlay" id="victoryModal">
     <div class="victory-card">
       <div style="font-size: 2rem;">🏆 ПОБЕДА! 🏆</div>
-      
       <div class="victory-photo-wrapper">
-        <img id="victoryPhoto" src="photo_2026-05-01_17-45-23.jpg" onerror="this.src='https://i.postimg.co/m28pP24Z/screamer.jpg'">
+        <img id="victoryPhoto" src="photo_2026-05-01_17-45-23.jpg" onerror="this.src='https://i.postimg.cc/m28pP24Z/screamer.jpg'">
       </div>
-
       <div class="winner-title" id="winnerTitle">Название лота</div>
-
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="btn-main btn-reroll" onclick="closeVictoryModal(); spinWheel();">🔄 Реролл</button>
-        <button class="btn-main btn-save" onclick="saveWatched(); closeVictoryModal();">✅ Смотрим этот!</button>
+        <button class="btn-main btn-save" onclick="saveWatched(); closeVictoryModal();">✅ Смотрим!</button>
       </div>
     </div>
   </div>
 
+  <!-- Модалка Пасхалки -->
   <div class="easter-modal-overlay" id="easterModal" onclick="closeEasterModal()">
     <div class="easter-card" onclick="event.stopPropagation()">
       <h2 style="color: #ff5252; margin-bottom: 5px;">🔥 Secret Unlocked! 🔥</h2>
       <p style="color: #ccc; font-size: 0.9rem; margin: 0;">By Gitraid Special Mode</p>
       <img src="photo_2026-04-04_16-10-40.jpg" alt="Secret Homer">
       <button class="btn-main" style="background: #e53935; margin-top: 10px;" onclick="closeEasterModal()">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Универсальная модалка для ввода текста (Импорт) -->
+  <div class="generic-modal-overlay" id="genericModal">
+    <div class="generic-card" style="border-color: #3390ec; box-shadow: 0 0 30px rgba(51, 144, 236, 0.3);">
+      <h2 style="color: #3390ec; font-size: 1.2rem; margin-bottom: 15px;" id="genericTitle">Введите данные</h2>
+      <textarea id="genericTextarea" style="width: 100%; height: 120px; background: #2a2a2a; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 10px; font-family: monospace; margin-bottom: 15px; resize: none;"></textarea>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-main" style="background: #555; flex: 1;" onclick="closeGenericModal()">Отмена</button>
+        <button class="btn-main" style="background: #3390ec; flex: 1;" onclick="applyImport()">ОК</button>
+      </div>
     </div>
   </div>
 
@@ -497,42 +452,65 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
 
-    // --- Интерактивный фон за мышью ---
-    window.addEventListener('mousemove', (e) => {
+    // --- БРЫЗГИ ПРИ НАЖАТИИ ---
+    function createRipple(event) {
+      const button = event.currentTarget;
+      const circle = document.createElement('span');
+      const diameter = Math.max(button.clientWidth, button.clientHeight);
+      const radius = diameter / 2;
+
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+      circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+      circle.classList.add('ripple');
+
+      const ripple = button.getElementsByClassName('ripple')[0];
+      if (ripple) ripple.remove();
+
+      button.appendChild(circle);
+    }
+
+    function attachEffects() {
+      document.querySelectorAll('button, .file-upload-btn').forEach(btn => {
+        // Анимация "Поп"
+        btn.addEventListener('click', () => {
+          btn.classList.remove('btn-pop');
+          void btn.offsetWidth;
+          btn.classList.add('btn-pop');
+        });
+        // Брызги
+        if (btn.tagName === 'BUTTON' || btn.classList.contains('file-upload-btn')) {
+          btn.addEventListener('pointerdown', createRipple);
+        }
+      });
+    }
+
+    // --- Интерактивный фон ---
+    window.addEventListener('pointermove', (e) => {
       const x = (e.clientX / window.innerWidth) * 100;
       const y = (e.clientY / window.innerHeight) * 100;
       document.body.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(30, 136, 229, 0.22), rgba(18, 18, 18, 0.96) 65%)`;
     });
 
-    // --- Звуковой движок ---
+    // --- Звуки ---
     function playWinSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!AudioCtx) return;
         const audioCtx = new AudioCtx();
-
         const notes = [261.63, 329.63, 392.00, 523.25];
         notes.forEach((freq, index) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-          
-          osc.type = 'triangle';
-          osc.frequency.value = freq;
-          
+          osc.type = 'triangle'; osc.frequency.value = freq;
           const startTime = audioCtx.currentTime + (index * 0.1);
           gain.gain.setValueAtTime(0, startTime);
           gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
           gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start(startTime);
-          osc.stop(startTime + 0.4);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(startTime); osc.stop(startTime + 0.4);
         });
-      } catch (e) {
-        console.log("Audio play error", e);
-      }
+      } catch (e) {}
     }
 
     function playScreamSound() {
@@ -541,86 +519,48 @@
         if (!AudioCtx) return;
         const audioCtx = new AudioCtx();
         const soundType = Math.floor(Math.random() * 3);
-
         if (soundType === 0) {
           const bufferSize = audioCtx.sampleRate * 0.8;
           const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
           const output = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-          }
-
-          const noise = audioCtx.createBufferSource();
-          noise.buffer = buffer;
-
-          const osc = audioCtx.createOscillator();
-          osc.type = 'sawtooth';
+          for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+          const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+          const osc = audioCtx.createOscillator(); osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(800, audioCtx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.8);
-
           const gain = audioCtx.createGain();
           gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-
-          noise.connect(gain);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          noise.start();
-          osc.start();
-          noise.stop(audioCtx.currentTime + 0.8);
-          osc.stop(audioCtx.currentTime + 0.8);
+          noise.connect(gain); osc.connect(gain); gain.connect(audioCtx.destination);
+          noise.start(); osc.start(); noise.stop(audioCtx.currentTime + 0.8); osc.stop(audioCtx.currentTime + 0.8);
         } 
         else if (soundType === 1) {
-          const osc = audioCtx.createOscillator();
-          const osc2 = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-
-          osc.type = 'sawtooth';
-          osc2.type = 'square';
-
+          const osc = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+          osc.type = 'sawtooth'; osc2.type = 'square';
           osc.frequency.setValueAtTime(150, audioCtx.currentTime);
           osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.9);
-
           osc2.frequency.setValueAtTime(153, audioCtx.currentTime);
           osc2.frequency.linearRampToValueAtTime(43, audioCtx.currentTime + 0.9);
-
           gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.9);
-
-          osc.connect(gain);
-          osc2.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start();
-          osc2.start();
-          osc.stop(audioCtx.currentTime + 0.9);
-          osc2.stop(audioCtx.currentTime + 0.9);
+          osc.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(); osc2.start(); osc.stop(audioCtx.currentTime + 0.9); osc2.stop(audioCtx.currentTime + 0.9);
         } 
         else {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-
+          const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(300, audioCtx.currentTime);
           osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.2);
           osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.7);
-
           gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.7);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.7);
         }
       } catch(e) {}
     }
 
-    function openTwitchStream() {
-      window.open('https://www.twitch.tv/hang_il', '_blank');
-    }
+    function openTwitchStream() { window.open('https://www.twitch.tv/hang_il', '_blank'); }
 
     // --- Дождь ---
     let isRaining = true;
@@ -633,12 +573,10 @@
       rainCanvas.width = window.innerWidth;
       rainCanvas.height = window.innerHeight;
       drops = [];
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 100; i++) {
         drops.push({
-          x: Math.random() * rainCanvas.width,
-          y: Math.random() * rainCanvas.height,
-          length: Math.random() * 20 + 10,
-          speed: Math.random() * 10 + 10,
+          x: Math.random() * rainCanvas.width, y: Math.random() * rainCanvas.height,
+          length: Math.random() * 20 + 10, speed: Math.random() * 10 + 10,
           opacity: Math.random() * 0.4 + 0.2
         });
       }
@@ -648,74 +586,36 @@
       if (!isRaining) return;
       rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
       rainCtx.strokeStyle = 'rgba(174, 194, 224, 0.6)';
-      rainCtx.lineWidth = 1.5;
-      rainCtx.lineCap = 'round';
-
+      rainCtx.lineWidth = 1.5; rainCtx.lineCap = 'round';
       drops.forEach(drop => {
-        rainCtx.beginPath();
-        rainCtx.moveTo(drop.x, drop.y);
-        rainCtx.lineTo(drop.x - drop.length * 0.2, drop.y + drop.length);
-        rainCtx.stroke();
-
-        drop.y += drop.speed;
-        drop.x -= drop.speed * 0.2;
-
-        if (drop.y > rainCanvas.height) {
-          drop.y = -drop.length;
-          drop.x = Math.random() * rainCanvas.width;
-        }
+        rainCtx.beginPath(); rainCtx.moveTo(drop.x, drop.y);
+        rainCtx.lineTo(drop.x - drop.length * 0.2, drop.y + drop.length); rainCtx.stroke();
+        drop.y += drop.speed; drop.x -= drop.speed * 0.2;
+        if (drop.y > rainCanvas.height) { drop.y = -drop.length; drop.x = Math.random() * rainCanvas.width; }
       });
-
       rainAnimId = requestAnimationFrame(drawRain);
     }
 
     function toggleRain() {
       isRaining = !isRaining;
       const btn = document.getElementById('rainBtn');
-      if (isRaining) {
-        btn.classList.add('active');
-        rainCanvas.style.display = 'block';
-        initRain();
-        drawRain();
-      } else {
-        btn.classList.remove('active');
-        rainCanvas.style.display = 'none';
-        cancelAnimationFrame(rainAnimId);
-      }
+      if (isRaining) { btn.classList.add('active'); rainCanvas.style.display = 'block'; initRain(); drawRain(); }
+      else { btn.classList.remove('active'); rainCanvas.style.display = 'none'; cancelAnimationFrame(rainAnimId); }
     }
 
-    initRain();
-    drawRain();
-
-    window.addEventListener('resize', () => {
-      if (isRaining) initRain();
-    });
+    initRain(); drawRain();
+    window.addEventListener('resize', () => { if (isRaining) initRain(); });
 
     // --- Пасхалки ---
-    function openEasterModal() {
-      playScreamSound();
-      document.getElementById('easterModal').classList.add('active');
-    }
-
-    function closeEasterModal() {
-      document.getElementById('easterModal').classList.remove('active');
-    }
+    function openEasterModal() { playScreamSound(); document.getElementById('easterModal').classList.add('active'); }
+    function closeEasterModal() { document.getElementById('easterModal').classList.remove('active'); }
 
     function triggerRunnerEaster() {
       const img = document.getElementById('runnerImg');
       if (img.classList.contains('jumpscare') || img.classList.contains('run-away')) return;
-
-      playScreamSound();
-      img.classList.add('jumpscare');
-
-      setTimeout(() => {
-        img.classList.remove('jumpscare');
-        img.classList.add('run-away');
-      }, 700);
-
-      setTimeout(() => {
-        img.style.display = 'none';
-      }, 1300);
+      playScreamSound(); img.classList.add('jumpscare');
+      setTimeout(() => { img.classList.remove('jumpscare'); img.classList.add('run-away'); }, 700);
+      setTimeout(() => { img.style.display = 'none'; }, 1300);
     }
 
     // --- Основной функционал ---
@@ -723,7 +623,6 @@
       const savedTitle = localStorage.getItem('app_title') || '🎬 Кино-Рулетка';
       document.getElementById('appTitle').innerText = savedTitle;
       document.getElementById('titleInput').value = savedTitle;
-
       const savedImg = localStorage.getItem('center_img');
       if (savedImg) setCenterImage(savedImg);
     }
@@ -765,7 +664,6 @@
     function renderInputs() {
       const container = document.getElementById('inputsContainer');
       container.innerHTML = '';
-      
       for (let i = 0; i < currentFilmCount; i++) {
         const row = document.createElement('div');
         row.className = 'input-row';
@@ -780,6 +678,7 @@
         `;
         container.appendChild(row);
       }
+      attachEffects(); // Перепривязываем эффекты к новым кнопкам поиска
     }
 
     function hidePreview(idx) {
@@ -790,15 +689,12 @@
     async function searchKinopoisk(idx) {
       const query = document.getElementById(`input-${idx}`).value.trim();
       if (!query) return;
-
       const resBox = document.getElementById(`res-${idx}`);
       resBox.innerHTML = '<div class="search-item">Поиск...</div>';
       resBox.style.display = 'block';
-
       try {
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=3&country=RU`);
         const data = await res.json();
-
         resBox.innerHTML = '';
         if (data.results && data.results.length > 0) {
           data.results.forEach(item => {
@@ -822,10 +718,8 @@
     function selectMovie(idx, title, poster, genre) {
       document.getElementById(`input-${idx}`).value = title;
       const prev = document.getElementById(`prev-${idx}`);
-      prev.src = poster;
-      prev.style.display = 'block';
+      prev.src = poster; prev.style.display = 'block';
       document.getElementById(`res-${idx}`).style.display = 'none';
-
       movieData[idx] = { title, poster, genre };
     }
 
@@ -834,18 +728,15 @@
       for (let i = 0; i < currentFilmCount; i++) {
         const val = document.getElementById(`input-${i}`).value.trim();
         if (!val) return alert(`Заполните фильм №${i + 1}`);
-        
         if (movieData[i] && movieData[i].title === val) {
           finalData.push(movieData[i]);
         } else {
           finalData.push({ title: val, poster: null });
         }
       }
-
       movieData = finalData;
       await preloadPosters();
       drawWheel();
-
       document.getElementById('setupCard').style.display = 'none';
       document.getElementById('wheelCard').style.display = 'block';
     }
@@ -855,14 +746,10 @@
         return new Promise((resolve) => {
           if (item.poster) {
             const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.src = item.poster;
+            img.crossOrigin = "anonymous"; img.src = item.poster;
             img.onload = () => { loadedImages[i] = img; resolve(); };
             img.onerror = () => { loadedImages[i] = null; resolve(); };
-          } else {
-            loadedImages[i] = null;
-            resolve();
-          }
+          } else { loadedImages[i] = null; resolve(); }
         });
       }));
     }
@@ -870,140 +757,88 @@
     function drawWheel() {
       const num = movieData.length;
       const arc = (2 * Math.PI) / num;
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const radius = canvas.width / 2 - 10;
-
+      const cx = canvas.width / 2, cy = canvas.height / 2, radius = canvas.width / 2 - 10;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       for (let i = 0; i < num; i++) {
-        const startAngle = i * arc - Math.PI / 2;
-        const endAngle = startAngle + arc;
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = COLORS[i % COLORS.length];
-        ctx.fill();
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(startAngle + arc / 2);
-
+        const startAngle = i * arc - Math.PI / 2, endAngle = startAngle + arc;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, endAngle); ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+        ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(startAngle + arc / 2);
         if (loadedImages[i]) {
           try {
-            ctx.beginPath();
-            ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2);
-            ctx.clip();
-            ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80);
-            ctx.restore();
-            
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(startAngle + arc / 2);
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 22px sans-serif';
+            ctx.beginPath(); ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2); ctx.clip();
+            ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80); ctx.restore();
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(startAngle + arc / 2);
+            ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.font = 'bold 22px sans-serif';
             let txt = movieData[i].title;
             if (txt.length > 10) txt = txt.substring(0, 8) + '..';
-            ctx.fillText(txt, radius - 120, 8);
-            ctx.restore();
-          } catch(e) {
-            drawTextSector(i, radius);
-          }
-        } else {
-          drawTextSector(i, radius);
-        }
+            ctx.fillText(txt, radius - 120, 8); ctx.restore();
+          } catch(e) { drawTextSector(i, radius); }
+        } else { drawTextSector(i, radius); }
       }
     }
 
     function drawTextSector(i, radius) {
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 26px sans-serif';
+      ctx.textAlign = 'right'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 26px sans-serif';
       let text = movieData[i].title;
       if (text.length > 14) text = text.substring(0, 12) + '...';
-      ctx.fillText(text, radius - 30, 10);
-      ctx.restore();
+      ctx.fillText(text, radius - 30, 10); ctx.restore();
     }
 
     function spinWheel() {
-      const spinBtn = document.getElementById('spinBtn');
-      const arrow = document.getElementById('arrow');
+      const spinBtn = document.getElementById('spinBtn'), arrow = document.getElementById('arrow');
       if (spinBtn.disabled) return;
-
-      spinBtn.disabled = true;
-      arrow.classList.add('spinning');
-
-      const num = movieData.length;
-      const winnerIndex = Math.floor(Math.random() * num);
+      spinBtn.disabled = true; arrow.classList.add('spinning');
+      const num = movieData.length, winnerIndex = Math.floor(Math.random() * num);
       currentWinnerIndex = winnerIndex;
-
-      const sectorAngle = 360 / num;
-      const baseRots = 360 * (5 + Math.floor(Math.random() * 3));
+      const sectorAngle = 360 / num, baseRots = 360 * (5 + Math.floor(Math.random() * 3));
       const targetAngle = currentRotation + baseRots + (360 - (winnerIndex * sectorAngle) - sectorAngle / 2);
-      
       currentRotation = targetAngle;
       canvas.style.transform = `rotate(${targetAngle}deg)`;
-
       setTimeout(() => {
-        spinBtn.disabled = false;
-        arrow.classList.remove('spinning');
-        showResult();
+        spinBtn.disabled = false; arrow.classList.remove('spinning'); showResult();
       }, 4000);
     }
 
     function showResult() {
       const item = movieData[currentWinnerIndex];
       document.getElementById('winnerTitle').innerText = item.title;
-      
-      const modal = document.getElementById('victoryModal');
-      modal.classList.add('active');
-
+      document.getElementById('victoryModal').classList.add('active');
       playWinSound();
-
-      if (window.confetti) {
-        confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
-      }
+      if (window.confetti) confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
     }
 
-    function closeVictoryModal() {
-      document.getElementById('victoryModal').classList.remove('active');
-    }
+    function closeVictoryModal() { document.getElementById('victoryModal').classList.remove('active'); }
+    function resetSetup() { document.getElementById('wheelCard').style.display = 'none'; document.getElementById('setupCard').style.display = 'block'; }
 
-    function resetSetup() {
-      document.getElementById('wheelCard').style.display = 'none';
-      document.getElementById('setupCard').style.display = 'block';
-    }
-
-    // === ИСТОРИЯ С ОЦЕНКАМИ ===
+    // === ИСТОРИЯ (ОЦЕНКИ И РЕДАКТИРОВАНИЕ) ===
     function getWatched() {
       let raw = [];
-      try {
-        raw = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]');
-      } catch (e) {
-        raw = [];
-      }
-      return raw.map(item =>
-        typeof item === 'string' ? { title: item, rating: 0 } : item
-      );
+      try { raw = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]'); } catch (e) {}
+      return raw.map(item => typeof item === 'string' ? { title: item, rating: 0 } : item);
     }
 
-    function saveWatchedList(list) {
-      localStorage.setItem('watched_movies_v4', JSON.stringify(list));
-    }
+    function saveWatchedList(list) { localStorage.setItem('watched_movies_v4', JSON.stringify(list)); }
 
     function setRating(title, rating) {
       const list = getWatched();
       const target = list.find(i => i.title === title);
       if (target) {
         target.rating = target.rating === rating ? 0 : rating;
-        saveWatchedList(list);
-        renderHistory();
+        saveWatchedList(list); renderHistory();
+      }
+    }
+
+    function editMovieTitle(oldTitle) {
+      const newTitle = prompt("Введите новое название фильма:", oldTitle);
+      if (newTitle && newTitle.trim() !== "" && newTitle !== oldTitle) {
+        const list = getWatched();
+        const target = list.find(i => i.title === oldTitle);
+        if (target) {
+          target.title = newTitle.trim();
+          saveWatchedList(list); renderHistory();
+        }
       }
     }
 
@@ -1011,38 +846,22 @@
       if (currentWinnerIndex === -1) return;
       const film = movieData[currentWinnerIndex].title;
       const watched = getWatched();
-
       if (!watched.some(i => i.title === film)) {
         watched.push({ title: film, rating: 0 });
-        saveWatchedList(watched);
-        renderHistory();
-        alert(`Фильм "${film}" сохранён! Можете поставить оценку в истории.`);
-      } else {
-        alert(`Фильм "${film}" уже есть в истории.`);
-      }
+        saveWatchedList(watched); renderHistory();
+        alert(`Фильм "${film}" сохранён!`);
+      } else { alert(`Фильм "${film}" уже есть в истории.`); }
     }
 
     function renderHistory() {
-      const watched = getWatched();
-      const list = document.getElementById('historyList');
+      const watched = getWatched(), list = document.getElementById('historyList');
       list.innerHTML = '';
-
-      if (watched.length === 0) {
-        list.innerHTML = '<li>История пуста...</li>';
-        return;
-      }
-
+      if (watched.length === 0) { list.innerHTML = '<li>История пуста...</li>'; return; }
       watched.slice().reverse().forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'history-li';
-
-        const title = document.createElement('span');
-        title.className = 'history-title';
-        title.innerHTML = `<span class="history-num">${watched.length - index}.</span> <strong>${item.title}</strong>`;
-
-        const stars = document.createElement('div');
-        stars.className = 'history-stars';
-
+        const li = document.createElement('li'); li.className = 'history-li';
+        const title = document.createElement('span'); title.className = 'history-title';
+        title.innerHTML = `<span class="history-num">${watched.length - index}.</span> <strong>${item.title}</strong> <span class="edit-icon" onclick="editMovieTitle('${item.title.replace(/'/g, "\\'")}')">✏️</span>`;
+        const stars = document.createElement('div'); stars.className = 'history-stars';
         for (let s = 1; s <= 5; s++) {
           const star = document.createElement('span');
           star.className = 'history-star' + (s <= item.rating ? ' filled' : '');
@@ -1051,37 +870,55 @@
           star.addEventListener('click', () => setRating(item.title, s));
           stars.appendChild(star);
         }
-
-        li.appendChild(title);
-        li.appendChild(stars);
-        list.appendChild(li);
+        li.appendChild(title); li.appendChild(stars); list.appendChild(li);
       });
     }
 
     function clearHistory() {
-      if (confirm("Очистить историю?")) {
-        localStorage.removeItem('watched_movies_v4');
-        renderHistory();
-      }
+      if (confirm("Очистить историю?")) { localStorage.removeItem('watched_movies_v4'); renderHistory(); }
     }
 
-    // === ЭФФЕКТ "ПОП" ПРИ КЛИКЕ НА КНОПКИ ===
-    function attachBtnPop() {
-      document.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          btn.classList.remove('btn-pop');
-          void btn.offsetWidth;
-          btn.classList.add('btn-pop');
-        });
+    // === ЭКСПОРТ / ИМПОРТ ИСТОРИИ ===
+    function exportHistory() {
+      const data = localStorage.getItem('watched_movies_v4') || '[]';
+      navigator.clipboard.writeText(data).then(() => {
+        alert("История скопирована! Отправьте её другу.");
+      }).catch(() => {
+        prompt("Скопируйте текст вручную:", data);
       });
     }
 
-    loadSavedSettings();
-    renderInputs();
-    renderHistory();
-    attachBtnPop();
+    function importHistoryPrompt() {
+      document.getElementById('genericTextarea').value = '';
+      document.getElementById('genericModal').classList.add('active');
+    }
 
-    // Для динамически созданных кнопок звёзд — эффект нажатия через CSS (:active) уже работает
+    function closeGenericModal() { document.getElementById('genericModal').classList.remove('active'); }
+
+    function applyImport() {
+      const val = document.getElementById('genericTextarea').value.trim();
+      if (!val) return closeGenericModal();
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) {
+          localStorage.setItem('watched_movies_v4', JSON.stringify(parsed));
+          renderHistory(); closeGenericModal();
+          alert("История успешно загружена!");
+        } else { alert("Неверный формат данных."); }
+      } catch (e) { alert("Ошибка: это невалидный JSON."); }
+    }
+
+    // Запуск
+    loadSavedSettings(); renderInputs(); renderHistory(); attachEffects();
+
+    // Делаем так, чтобы эффекты работали и для новых кнопок
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length > 0) attachEffects();
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
   </script>
 </body>
 </html>
