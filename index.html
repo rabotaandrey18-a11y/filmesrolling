@@ -9,7 +9,6 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #121212;
-      /* Динамический фон за курсором */
       background-image: radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.15), rgba(18, 18, 18, 0.95) 70%);
       color: #ffffff;
       margin: 0;
@@ -109,7 +108,6 @@
       border-color: #3390ec;
     }
 
-    /* Поля ввода */
     .input-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
     .input-row { display: flex; gap: 8px; align-items: center; position: relative; }
     .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
@@ -142,7 +140,6 @@
     .search-item:hover { background: #333; }
     .search-item img { width: 30px; height: 40px; border-radius: 4px; object-fit: cover; }
 
-    /* Кнопки */
     .btn-main {
       padding: 14px; border: none; border-radius: 12px;
       background-color: #3390ec;
@@ -157,7 +154,6 @@
     .btn-save { background-color: #43a047; flex: 1; }
     .btn-save:hover { background-color: #2e7d32; }
 
-    /* Рулетка */
     .roulette-container {
       position: relative; width: 320px; height: 320px; margin: 15px auto;
     }
@@ -192,11 +188,9 @@
     }
     .wheel-center img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* История */
     .history-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
     .history-list li { padding: 10px; border-bottom: 1px solid #444; font-size: 14px; color: #ccc; }
 
-    /* Окно победы (Modal) */
     .victory-modal-overlay, .easter-modal-overlay {
       position: fixed;
       inset: 0;
@@ -264,7 +258,6 @@
       margin: 10px 0 5px 0;
     }
 
-    /* Хост Дождя */
     #rainCanvas {
       position: fixed;
       top: 0;
@@ -276,7 +269,6 @@
       display: block;
     }
 
-    /* Пасхалка Карточка Gitraid */
     .easter-card {
       background: #1a0505;
       border: 2px solid #e53935;
@@ -294,7 +286,6 @@
       margin: 10px 0;
     }
 
-    /* Секретный беглец (Маленькая прозрачная картинка) */
     .runner-easter {
       position: fixed;
       bottom: 10px;
@@ -312,7 +303,6 @@
       opacity: 0.4;
     }
 
-    /* Состояние испуга и побега */
     .runner-easter.jumpscare {
       opacity: 1 !important;
       border-radius: 0;
@@ -340,13 +330,66 @@
       80% { transform: translate(2px, 1px) rotate(1deg); }
       100% { transform: translate(1px, -2px) rotate(-1deg); }
     }
+
+    /* === АНИМАЦИЯ НАЖАТИЯ КНОПОК === */
+    button {
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease;
+    }
+    button:active {
+      transform: scale(0.94);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .btn-main:active {
+      transform: scale(0.97) translateY(1px);
+    }
+    @keyframes btnPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(0.92); }
+      70%  { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    .btn-pop {
+      animation: btnPop 0.35s ease;
+    }
+
+    /* === ЗВЁЗДЫ В ИСТОРИИ === */
+    .history-stars {
+      display: flex;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .history-star {
+      cursor: pointer;
+      font-size: 18px;
+      color: #666;
+      transition: transform 0.15s, color 0.15s;
+      user-select: none;
+    }
+    .history-star.filled {
+      color: #ffca28;
+    }
+    .history-star:hover {
+      transform: scale(1.25);
+    }
+    .history-li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .history-title {
+      flex: 1;
+      word-break: break-word;
+    }
+    .history-num {
+      color: #666;
+    }
   </style>
 </head>
 <body>
 
   <canvas id="rainCanvas"></canvas>
 
-  <!-- Скрытый секретный беглец -->
   <img id="runnerImg" class="runner-easter" src="photo_2026-07-22_05-47-04.jpg" onclick="triggerRunnerEaster()" title="???">
 
   <div class="header-bar">
@@ -412,7 +455,6 @@
     <ul class="history-list" id="historyList"></ul>
   </div>
 
-  <!-- Модальное окно победы -->
   <div class="victory-modal-overlay" id="victoryModal">
     <div class="victory-card">
       <div style="font-size: 2rem;">🏆 ПОБЕДА! 🏆</div>
@@ -430,7 +472,6 @@
     </div>
   </div>
 
-  <!-- Пасхалка Модалка -->
   <div class="easter-modal-overlay" id="easterModal" onclick="closeEasterModal()">
     <div class="easter-card" onclick="event.stopPropagation()">
       <h2 style="color: #ff5252; margin-bottom: 5px;">🔥 Secret Unlocked! 🔥</h2>
@@ -463,7 +504,7 @@
       document.body.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(30, 136, 229, 0.22), rgba(18, 18, 18, 0.96) 65%)`;
     });
 
-    // --- Звуковой движок (Web Audio API) ---
+    // --- Звуковой движок ---
     function playWinSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -494,7 +535,6 @@
       }
     }
 
-    // Случайные страшные звуки скримеров
     function playScreamSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -578,13 +618,12 @@
       } catch(e) {}
     }
 
-    // Ссылка на Twitch
     function openTwitchStream() {
       window.open('https://www.twitch.tv/hang_il', '_blank');
     }
 
-    // --- Дождь (Rain Effect) ---
-    let isRaining = true; // Дождь включен сразу
+    // --- Дождь ---
+    let isRaining = true;
     let rainAnimId = null;
     const rainCanvas = document.getElementById('rainCanvas');
     const rainCtx = rainCanvas.getContext('2d');
@@ -645,7 +684,6 @@
       }
     }
 
-    // Запуск дождя сразу
     initRain();
     drawRain();
 
@@ -663,7 +701,6 @@
       document.getElementById('easterModal').classList.remove('active');
     }
 
-    // Пасхалка: Выбегающий чувак
     function triggerRunnerEaster() {
       const img = document.getElementById('runnerImg');
       if (img.classList.contains('jumpscare') || img.classList.contains('run-away')) return;
@@ -943,25 +980,80 @@
       document.getElementById('setupCard').style.display = 'block';
     }
 
+    // === ИСТОРИЯ С ОЦЕНКАМИ ===
+    function getWatched() {
+      let raw = [];
+      try {
+        raw = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]');
+      } catch (e) {
+        raw = [];
+      }
+      return raw.map(item =>
+        typeof item === 'string' ? { title: item, rating: 0 } : item
+      );
+    }
+
+    function saveWatchedList(list) {
+      localStorage.setItem('watched_movies_v4', JSON.stringify(list));
+    }
+
+    function setRating(title, rating) {
+      const list = getWatched();
+      const target = list.find(i => i.title === title);
+      if (target) {
+        target.rating = target.rating === rating ? 0 : rating;
+        saveWatchedList(list);
+        renderHistory();
+      }
+    }
+
     function saveWatched() {
       if (currentWinnerIndex === -1) return;
       const film = movieData[currentWinnerIndex].title;
-      let watched = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]');
-      if (!watched.includes(film)) {
-        watched.push(film);
-        localStorage.setItem('watched_movies_v4', JSON.stringify(watched));
+      const watched = getWatched();
+
+      if (!watched.some(i => i.title === film)) {
+        watched.push({ title: film, rating: 0 });
+        saveWatchedList(watched);
         renderHistory();
-        alert(`Фильм "${film}" сохранен!`);
+        alert(`Фильм "${film}" сохранён! Можете поставить оценку в истории.`);
+      } else {
+        alert(`Фильм "${film}" уже есть в истории.`);
       }
     }
 
     function renderHistory() {
-      const watched = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]');
+      const watched = getWatched();
       const list = document.getElementById('historyList');
-      list.innerHTML = watched.length === 0 ? "<li>История пуста...</li>" : "";
-      watched.slice().reverse().forEach((film, index) => {
+      list.innerHTML = '';
+
+      if (watched.length === 0) {
+        list.innerHTML = '<li>История пуста...</li>';
+        return;
+      }
+
+      watched.slice().reverse().forEach((item, index) => {
         const li = document.createElement('li');
-        li.innerHTML = `<span>${watched.length - index}. <strong>${film}</strong></span>`;
+        li.className = 'history-li';
+
+        const title = document.createElement('span');
+        title.className = 'history-title';
+        title.innerHTML = `<span class="history-num">${watched.length - index}.</span> <strong>${item.title}</strong>`;
+
+        const stars = document.createElement('div');
+        stars.className = 'history-stars';
+
+        for (let s = 1; s <= 5; s++) {
+          const star = document.createElement('span');
+          star.className = 'history-star' + (s <= item.rating ? ' filled' : '');
+          star.textContent = s <= item.rating ? '★' : '☆';
+          star.title = `Оценить на ${s}`;
+          star.addEventListener('click', () => setRating(item.title, s));
+          stars.appendChild(star);
+        }
+
+        li.appendChild(title);
+        li.appendChild(stars);
         list.appendChild(li);
       });
     }
@@ -973,9 +1065,23 @@
       }
     }
 
+    // === ЭФФЕКТ "ПОП" ПРИ КЛИКЕ НА КНОПКИ ===
+    function attachBtnPop() {
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.remove('btn-pop');
+          void btn.offsetWidth;
+          btn.classList.add('btn-pop');
+        });
+      });
+    }
+
     loadSavedSettings();
     renderInputs();
     renderHistory();
+    attachBtnPop();
+
+    // Для динамически созданных кнопок звёзд — эффект нажатия через CSS (:active) уже работает
   </script>
 </body>
 </html>
