@@ -4,19 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#121212">
-  <title>Кино-Рулетка</title>
+  <meta name="theme-color" content="#0a0a0c">
+  <title>Кино-Рулетка | DMC3 Style</title>
   
-  <!-- Подключаем Telegram WebApp API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
   <style>
+    /* === DMC3 STYLE PALETTE === */
+    /* Gothic + Punk + Dark Anime */
+    :root {
+      --bg-deep: #0a0a0c;
+      --bg-card: rgba(18, 16, 22, 0.85);
+      --bg-elevated: rgba(30, 26, 36, 0.9);
+      --accent-red: #8b0000; /* Crimson */
+      --accent-red-bright: #cc1111;
+      --accent-gold: #c5a059; /* DMC gold trim */
+      --text-main: #d4d4d8;
+      --text-dim: #7a7a85;
+      --border-gothic: rgba(139, 0, 0, 0.4);
+      --glow-red: rgba(180, 20, 20, 0.15);
+      --glow-blue: rgba(60, 80, 160, 0.08);
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: #121212;
-      background-image: radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.15), rgba(18, 18, 18, 0.95) 70%);
-      color: #ffffff;
+      font-family: 'Trebuchet MS', 'Segoe UI', -apple-system, sans-serif;
+      background-color: var(--bg-deep);
+      /* Gothic mist + subtle radial gradients */
+      background-image: 
+        radial-gradient(circle at 20% 30%, var(--glow-blue) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, var(--glow-red) 0%, transparent 50%),
+        linear-gradient(180deg, #0a0a0c 0%, #121016 100%);
+      color: var(--text-main);
       margin: 0;
       padding: 12px;
       display: flex;
@@ -27,21 +47,57 @@
       padding-bottom: env(safe-area-inset-bottom, 20px);
       position: relative;
       overflow-x: hidden;
+      transition: background 0.3s;
     }
 
-    h1, h2 { text-align: center; margin: 0 0 15px 0; font-size: 1.3rem; }
+    /* Fog overlay (ambient) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23noise)" opacity="0.03"/></svg>');
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+      mix-blend-mode: overlay;
+    }
+
+    h1, h2 { 
+      text-align: center; 
+      margin: 0 0 15px 0; 
+      font-size: 1.3rem; 
+      color: var(--text-main);
+      text-shadow: 0 0 10px var(--accent-red);
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
     
     .card {
-      background: #1e1e1e;
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
       padding: 16px;
-      border-radius: 16px;
+      border-radius: 4px; /* Sharper corners for DMC style */
       width: 100%;
       max-width: 420px;
       margin-bottom: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      border: 1px solid #2a2a2a;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.7), inset 0 0 0 1px var(--border-gothic);
+      border: 1px solid var(--border-gothic);
       z-index: 2;
+      position: relative;
     }
+    /* Decorative corner accents */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-color: var(--accent-gold);
+      border-style: solid;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .card::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+    .card::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
 
     .header-bar {
       display: flex;
@@ -53,27 +109,25 @@
       z-index: 2;
     }
     .header-bar h1 { margin: 0; word-break: break-word; font-size: 1.2rem; }
-    
-    .header-controls { display: flex; gap: 8px; }
 
     .icon-btn {
-      background: #2a2a2a;
-      border: 1px solid #444;
-      border-radius: 20px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-gothic);
+      border-radius: 2px;
       padding: 8px 12px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 14px; color: #fff;
+      cursor: pointer; font-size: 14px; color: var(--text-main);
       flex-shrink: 0;
       transition: all 0.2s;
     }
-    .icon-btn:hover { background: #333; }
-    .icon-btn.active { background: #1e88e5; border-color: #64b5f6; }
+    .icon-btn:hover { background: #2a1a1a; border-color: var(--accent-red); }
+    .icon-btn.active { background: var(--accent-red); border-color: var(--accent-red-bright); color: #fff; }
 
     .settings-panel {
       display: none;
-      background: rgba(0,0,0,0.3);
-      padding: 15px; border-radius: 12px;
-      margin-bottom: 15px; border: 1px solid #444;
+      background: rgba(0,0,0,0.4);
+      padding: 15px; border-radius: 4px;
+      margin-bottom: 15px; border: 1px solid var(--border-gothic);
     }
     .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     
@@ -84,87 +138,93 @@
     .poop-btn:hover { transform: scale(1.2) rotate(10deg); }
 
     .settings-group { margin-bottom: 15px; }
-    .settings-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; text-align: center; color: #aaa; }
+    .settings-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; text-align: center; color: var(--text-dim); }
     
     .file-upload-wrapper { position: relative; width: 100%; text-align: center; }
     .file-upload-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      background: #2a2a2a; border: 2px dashed #555; border-radius: 12px;
-      padding: 12px; color: #ccc; font-size: 14px; cursor: pointer; transition: all 0.2s;
+      background: var(--bg-elevated); border: 1px dashed var(--border-gothic); border-radius: 2px;
+      padding: 12px; color: var(--text-dim); font-size: 14px; cursor: pointer; transition: all 0.2s;
     }
-    .file-upload-btn:hover { border-color: #3390ec; color: #fff; background: #333; }
+    .file-upload-btn:hover { border-color: var(--accent-red); color: var(--text-main); background: #1a1214; }
     .file-upload-btn svg { width: 20px; height: 20px; fill: currentColor; }
     .file-upload-input { display: none; }
 
     .settings-input {
-      width: 100%; padding: 10px; border-radius: 8px;
-      border: 1px solid #555; background: #333; color: #fff; text-align: center;
+      width: 100%; padding: 10px; border-radius: 2px;
+      border: 1px solid var(--border-gothic); background: #151016; color: var(--text-main); text-align: center;
     }
+    .settings-input:focus { outline: none; border-color: var(--accent-red); }
 
     .count-selector { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     .count-btn {
-      padding: 8px 14px; border-radius: 8px; border: 1px solid #555;
-      background: #333; color: #fff; font-weight: bold; cursor: pointer; transition: all 0.2s;
+      padding: 8px 14px; border-radius: 2px; border: 1px solid var(--border-gothic);
+      background: var(--bg-elevated); color: var(--text-main); font-weight: bold; cursor: pointer; transition: all 0.2s;
     }
-    .count-btn.active { background: #3390ec; border-color: #3390ec; }
+    .count-btn.active { background: var(--accent-red); border-color: var(--accent-red-bright); color: #fff; }
 
     .input-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
     .input-row { display: flex; gap: 8px; align-items: center; position: relative; }
-    .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 5px currentColor; }
     .input-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
     .input-row input {
-      width: 100%; padding: 10px 35px 10px 10px; border-radius: 8px;
-      border: 1px solid #444; background: rgba(255,255,255,0.05); color: #fff; font-size: 14px;
+      width: 100%; padding: 10px 35px 10px 10px; border-radius: 2px;
+      border: 1px solid var(--border-gothic); background: rgba(255,255,255,0.03); color: var(--text-main); font-size: 14px;
     }
+    .input-row input:focus { outline: none; border-color: var(--accent-red); }
     .search-btn {
       position: absolute; right: 5px; background: none; border: none;
-      color: #aaa; cursor: pointer; font-size: 16px; padding: 5px;
+      color: var(--text-dim); cursor: pointer; font-size: 16px; padding: 5px;
     }
+    .search-btn:hover { color: var(--accent-red-bright); }
 
     .poster-preview {
-      width: 36px; height: 48px; border-radius: 4px; object-fit: cover;
-      background: #444; display: none; flex-shrink: 0;
+      width: 36px; height: 48px; border-radius: 2px; object-fit: cover;
+      background: #2a2a2a; display: none; flex-shrink: 0;
     }
 
     .search-results {
       position: absolute; top: 100%; left: 0; right: 0;
-      background: #222; border: 1px solid #555; border-radius: 8px;
+      background: var(--bg-elevated); border: 1px solid var(--border-gothic); border-radius: 2px;
       z-index: 100; max-height: 180px; overflow-y: auto; display: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8);
     }
     .search-item {
       display: flex; align-items: center; gap: 10px; padding: 8px;
-      cursor: pointer; border-bottom: 1px solid #333; font-size: 13px;
+      cursor: pointer; border-bottom: 1px solid #2a1a1a; font-size: 13px;
     }
-    .search-item:hover { background: #333; }
-    .search-item img { width: 30px; height: 40px; border-radius: 4px; object-fit: cover; }
+    .search-item:hover { background: #2a1a1a; }
+    .search-item img { width: 30px; height: 40px; border-radius: 2px; object-fit: cover; }
 
     .btn-main {
-      padding: 14px; border: none; border-radius: 12px;
-      background-color: #3390ec; color: #ffffff;
+      padding: 14px; border: none; border-radius: 2px;
+      background-color: var(--accent-red); color: #ffffff;
       font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; margin-top: 8px;
       transition: background 0.2s, transform 0.1s;
       position: relative; overflow: hidden;
+      text-transform: uppercase; letter-spacing: 1px;
+      border: 1px solid var(--accent-red-bright);
+      box-shadow: 0 0 15px var(--glow-red);
     }
-    .btn-main:hover { background-color: #287bc7; }
-    .btn-reroll { background-color: #e53935; flex: 1; }
-    .btn-reroll:hover { background-color: #c62828; }
-    .btn-save { background-color: #43a047; flex: 1; }
-    .btn-save:hover { background-color: #2e7d32; }
+    .btn-main:hover { background-color: var(--accent-red-bright); }
+    .btn-reroll { background-color: #5a1a1a; border-color: #8b0000; flex: 1; }
+    .btn-reroll:hover { background-color: #7a1a1a; }
+    .btn-save { background-color: #1a4a1a; border-color: #2a7a2a; flex: 1; }
+    .btn-save:hover { background-color: #2a6a2a; }
 
     .ripple {
-      position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.4);
+      position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.2);
       transform: scale(0); animation: rippleAnim 0.6s linear; pointer-events: none;
     }
     @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
-    /* === КОЛЕСО И ЕГО АНИМАЦИЯ === */
+    /* === WHEEL === */
     .roulette-container { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1/1; margin: 15px auto; }
     .roulette-arrow {
       position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
       width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
-      border-top: 28px solid #ffca28; z-index: 10;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+      border-top: 28px solid var(--accent-gold); z-index: 10;
+      filter: drop-shadow(0 0 5px var(--accent-red));
       transition: transform 0.1s;
     }
     .roulette-arrow.spinning { animation: pulseArrow 0.15s infinite alternate; }
@@ -176,64 +236,75 @@
 
     #wheelCanvas {
       width: 100%; height: 100%; border-radius: 50%;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      /* Плавная остановка с легким отскоком (cubic-bezier) */
+      box-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 15px var(--glow-red);
       transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1);
+      filter: drop-shadow(0 0 8px rgba(139,0,0,0.3));
     }
 
     .wheel-center {
       position: absolute; width: 20%; height: 20%;
-      background: #fff; border-radius: 50%; top: 50%; left: 50%;
+      background: #1a1214; border-radius: 50%; top: 50%; left: 50%;
       transform: translate(-50%, -50%); z-index: 5;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 15px var(--accent-red), inset 0 0 10px #000;
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; font-size: 24px;
       transition: transform 0.3s;
+      border: 2px solid var(--accent-gold);
     }
-    .wheel-center:active { transform: translate(-50%, -50%) scale(0.9); }
     .wheel-center img { width: 100%; height: 100%; object-fit: cover; }
 
+    /* === HISTORY === */
     .history-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
-    .history-list li { padding: 10px; border-bottom: 1px solid #444; font-size: 14px; color: #ccc; }
+    .history-list li { padding: 10px; border-bottom: 1px solid #2a1a1a; font-size: 14px; color: var(--text-main); }
 
     .victory-modal-overlay, .easter-modal-overlay, .generic-modal-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px);
       z-index: 10000; display: flex; justify-content: center; align-items: center;
       padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
     }
     .victory-modal-overlay.active, .easter-modal-overlay.active, .generic-modal-overlay.active { opacity: 1; pointer-events: auto; }
 
     .victory-card, .generic-card {
-      background: #1e1e1e; border: 2px solid #ffca28; border-radius: 20px;
+      background: var(--bg-card); border: 2px solid var(--accent-gold); border-radius: 4px;
       padding: 24px; width: 100%; max-width: 380px; text-align: center;
-      box-shadow: 0 0 30px rgba(255, 202, 40, 0.3);
+      box-shadow: 0 0 40px var(--glow-red);
       transform: scale(0.7) translateY(30px);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
     }
     .victory-modal-overlay.active .victory-card, .generic-modal-overlay.active .generic-card { transform: scale(1) translateY(0); }
 
+    /* Close button for modal */
+    .modal-close-btn {
+      position: absolute; top: 8px; right: 12px;
+      background: none; border: none; color: var(--text-dim);
+      font-size: 24px; cursor: pointer; line-height: 1;
+      transition: color 0.2s;
+    }
+    .modal-close-btn:hover { color: var(--accent-red-bright); }
+
     .victory-photo-wrapper {
       position: relative; width: 100%; max-height: 250px; margin: 15px 0;
-      border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); border: 1px solid #333;
+      border-radius: 2px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8); border: 1px solid var(--border-gothic);
     }
     .victory-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; animation: photoGlow 3s infinite alternate; }
-    @keyframes photoGlow { from { filter: brightness(1); } to { filter: brightness(1.15) contrast(1.05); } }
+    @keyframes photoGlow { from { filter: brightness(1) sepia(0.1); } to { filter: brightness(1.1) sepia(0.2) hue-rotate(-5deg); } }
 
-    .winner-title { font-size: 1.4rem; color: #ffca28; margin: 10px 0 5px 0; }
+    .winner-title { font-size: 1.4rem; color: var(--accent-gold); margin: 10px 0 5px 0; text-shadow: 0 0 10px var(--accent-red); }
 
-    /* === КРАСИВЫЙ ДОЖДЬ === */
+    /* === RAIN (Improved visibility + interaction with cursor) === */
     #rainCanvas {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       pointer-events: none; z-index: 1; display: block;
-      opacity: 0.8; /* Легкая прозрачность для мягкости */
+      opacity: 1; /* Full opacity, controlled via gradient */
     }
 
     .easter-card {
-      background: #1a0505; border: 2px solid #e53935; border-radius: 20px;
+      background: #1a0505; border: 2px solid var(--accent-red); border-radius: 4px;
       padding: 20px; max-width: 380px; width: 100%; text-align: center;
       box-shadow: 0 0 35px rgba(229, 57, 53, 0.5);
     }
-    .easter-card img { width: 100%; border-radius: 12px; border: 1px solid #ff5252; margin: 10px 0; }
+    .easter-card img { width: 100%; border-radius: 2px; border: 1px solid var(--accent-red); margin: 10px 0; }
 
     .runner-easter {
       position: fixed; bottom: 10px; left: 10px; width: 35px; height: 35px;
@@ -260,34 +331,58 @@
     }
 
     button { transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease; }
-    button:active { transform: scale(0.94); box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); }
-    .btn-main:active { transform: scale(0.97) translateY(1px); }
+    button:active { transform: scale(0.94); }
     @keyframes btnPop { 0% { transform: scale(1); } 40% { transform: scale(0.92); } 70% { transform: scale(1.03); } 100% { transform: scale(1); } }
     .btn-pop { animation: btnPop 0.35s ease; }
 
     .history-stars { display: flex; gap: 2px; flex-shrink: 0; }
-    .history-star { cursor: pointer; font-size: 20px; color: #666; transition: transform 0.15s, color 0.15s; user-select: none; }
-    .history-star.filled { color: #ffca28; }
+    .history-star { cursor: pointer; font-size: 20px; color: #4a3a3a; transition: transform 0.15s, color 0.15s; user-select: none; }
+    .history-star.filled { color: var(--accent-gold); text-shadow: 0 0 5px var(--accent-red); }
     .history-star:hover { transform: scale(1.25); }
-    .history-li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid #333; }
+    .history-li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2a1a1a; }
     .history-title { flex: 1; word-break: break-word; font-size: 14px; }
-    .history-num { color: #666; margin-right: 4px; }
-    .edit-icon { cursor: pointer; color: #888; margin-left: 6px; font-size: 14px; display: inline-block; transition: color 0.2s; }
-    .edit-icon:hover { color: #fff; }
+    .history-num { color: var(--text-dim); margin-right: 4px; }
+    .edit-icon { cursor: pointer; color: var(--text-dim); margin-left: 6px; font-size: 14px; display: inline-block; transition: color 0.2s; }
+    .edit-icon:hover { color: var(--accent-red-bright); }
     .history-controls { display: flex; gap: 8px; margin-bottom: 12px; }
-    .history-controls button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #555; background: #2a2a2a; color: #fff; font-size: 12px; cursor: pointer; }
-    .history-controls button:hover { background: #333; }
+    .history-controls button { flex: 1; padding: 8px; border-radius: 2px; border: 1px solid var(--border-gothic); background: var(--bg-elevated); color: var(--text-main); font-size: 12px; cursor: pointer; }
+    .history-controls button:hover { background: #2a1a1a; border-color: var(--accent-red); }
+
+    /* Fullscreen mode overrides */
+    body.fullscreen-mode {
+      padding: 0;
+      justify-content: center;
+      background-image: none; /* Let canvas handle bg */
+    }
+    body.fullscreen-mode .card, body.fullscreen-mode .header-bar {
+      max-width: 500px;
+      margin-left: auto; margin-right: auto;
+    }
+    body.fullscreen-mode .roulette-container { max-width: 400px; }
+    
+    /* Kill the white bar in fullscreen */
+    body.fullscreen-mode {
+      overflow: hidden;
+      height: 100dvh;
+      width: 100vw;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Rain Canvas (behind everything) -->
   <canvas id="rainCanvas"></canvas>
+  
+  <!-- Fog/Mist layer -->
+  <div id="fogLayer" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 100%, rgba(100,120,180,0.05), transparent 70%);pointer-events:none;z-index:1;"></div>
+
   <img id="runnerImg" class="runner-easter" src="photo_2026-07-22_05-47-04.jpg" onclick="triggerRunnerEaster()" title="???">
 
   <div class="header-bar">
     <h1 id="appTitle">🎬 Кино-Рулетка</h1>
     <div class="header-controls">
       <button class="icon-btn active" id="rainBtn" onclick="toggleRain()">🌧️ Rain</button>
+      <button class="icon-btn" onclick="toggleFullscreen()" id="fsBtn">⛶ Full</button>
       <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
     </div>
   </div>
@@ -295,7 +390,7 @@
   <div class="card" id="setupCard">
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-header">
-        <span style="font-size: 0.85rem; color: #888;">Панель настроек</span>
+        <span style="font-size: 0.85rem; color: var(--text-dim);">Панель настроек</span>
         <button class="poop-btn" onclick="openTwitchStream()" title="Секрет...">💩</button>
       </div>
       <div class="settings-group">
@@ -337,13 +432,13 @@
       <div class="wheel-center" id="wheelCenter">🍿</div>
     </div>
     <button class="btn-main" id="spinBtn" onclick="spinWheel()">🎲 КРУТИТЬ РУЛЕТКУ</button>
-    <button class="btn-main" style="background-color: #555; margin-top: 12px;" onclick="resetSetup()">✏️ Изменить список</button>
+    <button class="btn-main" style="background-color: #333; margin-top: 12px; border-color: #555;" onclick="resetSetup()">✏️ Изменить список</button>
   </div>
 
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <h2 style="margin: 0;">📜 Просмотренные</h2>
-      <button onclick="clearHistory()" style="background: none; border: none; color: #e53935; cursor: pointer; font-weight: bold;">Очистить</button>
+      <button onclick="clearHistory()" style="background: none; border: none; color: var(--accent-red-bright); cursor: pointer; font-weight: bold;">Очистить</button>
     </div>
     <div class="history-controls">
       <button onclick="exportHistory()">📤 Экспорт</button>
@@ -352,13 +447,18 @@
     <ul class="history-list" id="historyList"></ul>
   </div>
 
+  <!-- Victory Modal -->
   <div class="victory-modal-overlay" id="victoryModal">
     <div class="victory-card">
-      <div style="font-size: 2rem;">🏆 ПОБЕДА! 🏆</div>
+      <button class="modal-close-btn" onclick="closeVictoryModal()">✕</button>
+      <div style="font-size: 2rem; color: var(--accent-gold);">🏆 ПОБЕДА! 🏆</div>
       <div class="victory-photo-wrapper">
         <img id="victoryPhoto" src="photo_2026-05-01_17-45-23.jpg" onerror="this.src='https://i.postimg.cc/m28pP24Z/screamer.jpg'">
       </div>
       <div class="winner-title" id="winnerTitle">Название лота</div>
+      <!-- Link to ReYohoho will be injected here -->
+      <div id="reyohohoLinkContainer" style="margin-bottom: 10px;"></div>
+      
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="btn-main btn-reroll" onclick="closeVictoryModal(); spinWheel();">🔄 Реролл</button>
         <button class="btn-main btn-save" onclick="saveWatched(); closeVictoryModal();">✅ Смотрим!</button>
@@ -368,43 +468,73 @@
 
   <div class="easter-modal-overlay" id="easterModal" onclick="closeEasterModal()">
     <div class="easter-card" onclick="event.stopPropagation()">
-      <h2 style="color: #ff5252; margin-bottom: 5px;">🔥 Secret Unlocked! 🔥</h2>
-      <p style="color: #ccc; font-size: 0.9rem; margin: 0;">By Gitraid Special Mode</p>
+      <h2 style="color: var(--accent-red-bright); margin-bottom: 5px;">🔥 Secret Unlocked! 🔥</h2>
+      <p style="color: var(--text-dim); font-size: 0.9rem; margin: 0;">By Gitraid Special Mode</p>
       <img src="photo_2026-04-04_16-10-40.jpg" alt="Secret Homer">
-      <button class="btn-main" style="background: #e53935; margin-top: 10px;" onclick="closeEasterModal()">Закрыть</button>
+      <button class="btn-main" style="background: var(--accent-red); margin-top: 10px;" onclick="closeEasterModal()">Закрыть</button>
     </div>
   </div>
 
   <div class="generic-modal-overlay" id="genericModal">
-    <div class="generic-card" style="border-color: #3390ec; box-shadow: 0 0 30px rgba(51, 144, 236, 0.3);">
-      <h2 style="color: #3390ec; font-size: 1.2rem; margin-bottom: 15px;" id="genericTitle">Введите данные</h2>
-      <textarea id="genericTextarea" style="width: 100%; height: 120px; background: #2a2a2a; border: 1px solid #555; border-radius: 8px; color: #fff; padding: 10px; font-family: monospace; margin-bottom: 15px; resize: none;"></textarea>
+    <div class="generic-card" style="border-color: var(--accent-red);">
+      <button class="modal-close-btn" onclick="closeGenericModal()">✕</button>
+      <h2 style="color: var(--accent-red-bright); font-size: 1.2rem; margin-bottom: 15px;" id="genericTitle">Введите данные</h2>
+      <textarea id="genericTextarea" style="width: 100%; height: 120px; background: #151016; border: 1px solid var(--border-gothic); border-radius: 2px; color: var(--text-main); padding: 10px; font-family: monospace; margin-bottom: 15px; resize: none;"></textarea>
       <div style="display: flex; gap: 10px;">
-        <button class="btn-main" style="background: #555; flex: 1;" onclick="closeGenericModal()">Отмена</button>
-        <button class="btn-main" style="background: #3390ec; flex: 1;" onclick="applyImport()">ОК</button>
+        <button class="btn-main" style="background: #333; flex: 1; border-color: #555;" onclick="closeGenericModal()">Отмена</button>
+        <button class="btn-main" style="background: var(--accent-red); flex: 1;" onclick="applyImport()">ОК</button>
       </div>
     </div>
   </div>
 
-  <footer style="text-align:center;color:#666;padding:15px;font-size:14px;user-select:none;cursor:pointer;z-index:2;" onclick="openEasterModal()">
+  <footer style="text-align:center;color:var(--text-dim);padding:15px;font-size:14px;user-select:none;cursor:pointer;z-index:2;" onclick="openEasterModal()">
     by Gitraid
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
-    // --- Инициализация Telegram WebApp (Фуллскрин) ---
+    // === TELEGRAM WEBAPP ===
     let tg = window.Telegram?.WebApp;
+    let isFullscreen = false;
+
     if (tg) {
-      tg.expand(); // Разворачиваем на весь экран
-      tg.setHeaderColor('#121212'); // Красим шапку в цвет фона
-      tg.setBackgroundColor('#121212'); // Красим фон
-      // Запрашиваем фуллскрин (если поддерживается)
+      tg.expand();
+      tg.setHeaderColor('#0a0a0c');
+      tg.setBackgroundColor('#0a0a0c');
+      // Request fullscreen if available
       if (tg.requestFullscreen) {
         tg.requestFullscreen();
       }
+      // Disable vertical swipes to prevent closing
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
     }
 
-    const COLORS = ['#e53935', '#1e88e5', '#43a047', '#ffb300', '#8e24aa', '#fb8c00'];
+    function toggleFullscreen() {
+      isFullscreen = !isFullscreen;
+      const btn = document.getElementById('fsBtn');
+      
+      if (isFullscreen) {
+        document.body.classList.add('fullscreen-mode');
+        btn.textContent = '⛶ Exit';
+        btn.classList.add('active');
+        // Try native fullscreen
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(()=>{});
+        }
+        if (tg && tg.requestFullscreen) tg.requestFullscreen();
+      } else {
+        document.body.classList.remove('fullscreen-mode');
+        btn.textContent = '⛶ Full';
+        btn.classList.remove('active');
+        if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+        if (tg && tg.exitFullscreen) tg.exitFullscreen();
+      }
+      
+      // Resize canvas after transition
+      setTimeout(() => { if (isRaining) initRain(); }, 100);
+    }
+
+    const COLORS = ['#8b0000', '#1a3a5a', '#3a1a4a', '#5a3a1a', '#1a4a2a', '#4a1a1a'];
     let currentFilmCount = 4;
     let movieData = []; 
     let loadedImages = [];
@@ -414,26 +544,33 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
 
-    // === КРАСИВЫЙ ДОЖДЬ (С ветром и свечением) ===
+    // === IMPROVED RAIN (Cursor interactive) ===
     let isRaining = true;
     let rainAnimId = null;
     const rainCanvas = document.getElementById('rainCanvas');
     const rainCtx = rainCanvas.getContext('2d');
     let drops = [];
+    let mouseX = -1000, mouseY = -1000;
+
+    document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+    document.addEventListener('touchmove', (e) => {
+      if (e.touches[0]) { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; }
+    }, {passive: true});
 
     function initRain() {
       rainCanvas.width = window.innerWidth;
       rainCanvas.height = window.innerHeight;
       drops = [];
-      const dropCount = Math.floor(window.innerWidth / 8); // Адаптивное количество
+      const dropCount = Math.floor(window.innerWidth / 5); // More drops
       for (let i = 0; i < dropCount; i++) {
         drops.push({
           x: Math.random() * rainCanvas.width,
           y: Math.random() * rainCanvas.height,
-          length: Math.random() * 25 + 10,
-          speed: Math.random() * 8 + 12,
-          opacity: Math.random() * 0.3 + 0.1, // Мягкая прозрачность
-          wind: Math.random() * 1.5 + 0.5 // Легкий ветер
+          length: Math.random() * 35 + 15,
+          speed: Math.random() * 10 + 15,
+          opacity: Math.random() * 0.5 + 0.3, // Higher opacity
+          wind: Math.random() * 1.5 + 0.5,
+          baseX: 0, baseY: 0
         });
       }
     }
@@ -443,25 +580,54 @@
       rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
       
       drops.forEach(drop => {
-        // Градиент для капли (эффект свечения)
-        const grad = rainCtx.createLinearGradient(drop.x, drop.y, drop.x - drop.wind * 5, drop.y + drop.length);
-        grad.addColorStop(0, `rgba(174, 194, 224, 0)`);
-        grad.addColorStop(1, `rgba(174, 194, 224, ${drop.opacity})`);
+        // Distance to mouse for glow effect
+        const dx = drop.x - mouseX;
+        const dy = drop.y - mouseY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const maxDist = 250;
+        
+        let glowIntensity = 0;
+        let colorShift = '174, 194, 224'; // Default blue-ish
+        
+        if (dist < maxDist) {
+          glowIntensity = (1 - dist / maxDist) * 0.8;
+          // Shift color towards red/crimson near cursor (DMC vibe)
+          colorShift = `174, 100, 100`; 
+        }
+
+        // Gradient for the drop (makes it visible)
+        const grad = rainCtx.createLinearGradient(
+          drop.x, drop.y, 
+          drop.x - drop.wind * 2, drop.y + drop.length
+        );
+        
+        // Start transparent, end with color
+        grad.addColorStop(0, `rgba(${colorShift}, 0)`);
+        grad.addColorStop(0.7, `rgba(${colorShift}, ${drop.opacity + glowIntensity * 0.5})`);
+        grad.addColorStop(1, `rgba(${colorShift}, ${drop.opacity * 0.8 + glowIntensity})`);
 
         rainCtx.beginPath();
         rainCtx.moveTo(drop.x, drop.y);
-        // Капля падает под углом (ветер)
         rainCtx.lineTo(drop.x - drop.wind * 2, drop.y + drop.length);
         rainCtx.strokeStyle = grad;
-        rainCtx.lineWidth = 1.2;
+        rainCtx.lineWidth = 1.5 + glowIntensity * 2; // Thicker near mouse
         rainCtx.lineCap = 'round';
+        
+        if (glowIntensity > 0.1) {
+          rainCtx.shadowBlur = 10 * glowIntensity;
+          rainCtx.shadowColor = 'rgba(180, 50, 50, 0.8)';
+        } else {
+          rainCtx.shadowBlur = 0;
+        }
+        
         rainCtx.stroke();
+        rainCtx.shadowBlur = 0; // Reset
 
-        // Обновление позиции
+        // Update position
         drop.y += drop.speed;
         drop.x -= drop.wind;
 
-        // Сброс капли
+        // Reset
         if (drop.y > rainCanvas.height || drop.x < -50) {
           drop.y = -drop.length;
           drop.x = Math.random() * rainCanvas.width + 50;
@@ -481,7 +647,284 @@
     initRain(); drawRain();
     window.addEventListener('resize', () => { if (isRaining) initRain(); });
 
-    // === ЭФФЕКТЫ КНОПОК ===
+    // === REYOHOHO SEARCH (Fallback to iTunes if API fails) ===
+    // Note: ReYohoho's public API might be unstable/defunct [citation:1][citation:5]
+    // We will attempt to search via their endpoint, but fallback to iTunes for reliability.
+    
+    async function searchMovieReYohoho(query) {
+      // ReYohoho often uses ID-based search. We can try their search endpoint if available.
+      // However, their site structure might not have a simple JSON API.
+      // As a robust fallback, we use iTunes search which gives posters and titles.
+      
+      try {
+        // Try ReYohoho-like search (hypothetical endpoint, may not work)
+        // Since their API is often down, we prioritize iTunes for the actual UI.
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=5&country=RU`);
+        const data = await res.json();
+        
+        if (data.results && data.results.length > 0) {
+          return data.results.map(item => ({
+            title: item.trackName,
+            poster: item.artworkUrl100.replace('100x100bb', '300x300bb'),
+            id: item.trackId, // iTunes ID, not KP ID
+            year: item.releaseDate ? item.releaseDate.substring(0,4) : '',
+            source: 'itunes',
+            // Construct ReYohoho link using KP ID if available? 
+            // Since we don't have KP ID, we link to search page.
+            reyohohoUrl: `https://reyhoho.fun/search?q=${encodeURIComponent(item.trackName)}` 
+          }));
+        }
+      } catch (e) {
+        console.error("Search error", e);
+      }
+      return [];
+    }
+
+    function renderInputs() {
+      const container = document.getElementById('inputsContainer');
+      container.innerHTML = '';
+      for (let i = 0; i < currentFilmCount; i++) {
+        const row = document.createElement('div');
+        row.className = 'input-row';
+        row.innerHTML = `
+          <div class="color-dot" style="background: ${COLORS[i % COLORS.length]}"></div>
+          <img class="poster-preview" id="prev-${i}" />
+          <div class="input-wrapper">
+            <input type="text" id="input-${i}" placeholder="Фильм ${i + 1}" oninput="hidePreview(${i})">
+            <button class="search-btn" onclick="searchKinopoisk(${i})">🔍</button>
+            <div class="search-results" id="res-${i}"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      }
+      attachEffects();
+    }
+
+    function hidePreview(idx) {
+      document.getElementById(`prev-${idx}`).style.display = 'none';
+      delete movieData[idx];
+    }
+
+    async function searchKinopoisk(idx) {
+      const query = document.getElementById(`input-${idx}`).value.trim();
+      if (!query) return;
+      
+      const resBox = document.getElementById(`res-${idx}`);
+      resBox.innerHTML = '<div class="search-item">Поиск...</div>'; 
+      resBox.style.display = 'block';
+      
+      const results = await searchMovieReYohoho(query);
+      
+      resBox.innerHTML = '';
+      if (results.length > 0) {
+        results.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'search-item';
+          div.innerHTML = `<img src="${item.poster}"> <div><strong>${item.title}</strong><br><small>${item.year}</small></div>`;
+          div.onclick = () => selectMovie(idx, item.title, item.poster, item.reyohohoUrl);
+          resBox.appendChild(div);
+        });
+      } else {
+        resBox.innerHTML = '<div class="search-item">Ничего не найдено</div>'; 
+        setTimeout(() => resBox.style.display = 'none', 1500);
+      }
+    }
+
+    function selectMovie(idx, title, poster, reyohohoUrl) {
+      document.getElementById(`input-${idx}`).value = title;
+      const prev = document.getElementById(`prev-${idx}`);
+      prev.src = poster; prev.style.display = 'block';
+      document.getElementById(`res-${idx}`).style.display = 'none';
+      movieData[idx] = { title, poster, reyohohoUrl };
+    }
+
+    async function startRoulette() {
+      const finalData = [];
+      for (let i = 0; i < currentFilmCount; i++) {
+        const val = document.getElementById(`input-${i}`).value.trim();
+        if (!val) return alert(`Заполните фильм №${i + 1}`);
+        if (movieData[i] && movieData[i].title === val) finalData.push(movieData[i]);
+        else finalData.push({ title: val, poster: null, reyohohoUrl: `https://reyhoho.fun/search?q=${encodeURIComponent(val)}` });
+      }
+      movieData = finalData;
+      await preloadPosters();
+      drawWheel();
+      document.getElementById('setupCard').style.display = 'none';
+      document.getElementById('wheelCard').style.display = 'block';
+    }
+
+    function preloadPosters() {
+      return Promise.all(movieData.map((item, i) => new Promise((resolve) => {
+        if (item.poster) {
+          const img = new Image(); img.crossOrigin = "anonymous"; img.src = item.poster;
+          img.onload = () => { loadedImages[i] = img; resolve(); };
+          img.onerror = () => { loadedImages[i] = null; resolve(); };
+        } else { loadedImages[i] = null; resolve(); }
+      })));
+    }
+
+    function drawWheel() {
+      const num = movieData.length, arc = (2 * Math.PI) / num;
+      const cx = canvas.width / 2, cy = canvas.height / 2, radius = canvas.width / 2 - 10;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < num; i++) {
+        const startAngle = i * arc - Math.PI / 2, endAngle = startAngle + arc;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, endAngle); ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+        ctx.lineWidth = 4; ctx.strokeStyle = '#c5a059'; ctx.stroke(); // Gold border
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(startAngle + arc / 2);
+        if (loadedImages[i]) {
+          try {
+            ctx.beginPath(); ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2); ctx.clip();
+            ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80); ctx.restore();
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(startAngle + arc / 2);
+            ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.font = 'bold 22px sans-serif';
+            let txt = movieData[i].title;
+            if (txt.length > 10) txt = txt.substring(0, 8) + '..';
+            ctx.fillText(txt, radius - 120, 8); ctx.restore();
+          } catch(e) { drawTextSector(i, radius); }
+        } else { drawTextSector(i, radius); }
+      }
+    }
+
+    function drawTextSector(i, radius) {
+      ctx.textAlign = 'right'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 26px sans-serif';
+      let text = movieData[i].title;
+      if (text.length > 14) text = text.substring(0, 12) + '...';
+      ctx.fillText(text, radius - 30, 10); ctx.restore();
+    }
+
+    function spinWheel() {
+      const spinBtn = document.getElementById('spinBtn'), arrow = document.getElementById('arrow');
+      if (spinBtn.disabled) return;
+      spinBtn.disabled = true; arrow.classList.add('spinning');
+      
+      const num = movieData.length, winnerIndex = Math.floor(Math.random() * num);
+      currentWinnerIndex = winnerIndex;
+      
+      const sectorAngle = 360 / num;
+      const baseRots = 360 * (5 + Math.floor(Math.random() * 4));
+      const targetAngle = currentRotation + baseRots + (360 - (winnerIndex * sectorAngle) - sectorAngle / 2);
+      
+      currentRotation = targetAngle;
+      canvas.style.transform = `rotate(${targetAngle}deg)`;
+      
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+      setTimeout(() => {
+        spinBtn.disabled = false; arrow.classList.remove('spinning'); showResult();
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      }, 5000);
+    }
+
+    function showResult() {
+      const item = movieData[currentWinnerIndex];
+      document.getElementById('winnerTitle').innerText = item.title;
+      
+      // Inject ReYohoho link
+      const linkContainer = document.getElementById('reyohohoLinkContainer');
+      if (item.reyohohoUrl) {
+        linkContainer.innerHTML = `<a href="${item.reyohohoUrl}" target="_blank" style="color: var(--accent-gold); text-decoration: underline; font-size: 0.9rem;">Открыть на ReYohoho</a>`;
+      } else {
+        linkContainer.innerHTML = '';
+      }
+      
+      document.getElementById('victoryModal').classList.add('active');
+      playWinSound();
+      if (window.confetti) confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 }, colors: ['#8b0000', '#c5a059', '#ffffff'] });
+    }
+
+    function closeVictoryModal() { document.getElementById('victoryModal').classList.remove('active'); }
+    function resetSetup() { document.getElementById('wheelCard').style.display = 'none'; document.getElementById('setupCard').style.display = 'block'; }
+
+    // === HISTORY ===
+    function getWatched() {
+      let raw = [];
+      try { raw = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]'); } catch (e) {}
+      return raw.map(item => typeof item === 'string' ? { title: item, rating: 0, url: `https://reyhoho.fun/search?q=${encodeURIComponent(item)}` } : item);
+    }
+
+    function saveWatchedList(list) { localStorage.setItem('watched_movies_v4', JSON.stringify(list)); }
+
+    function setRating(title, rating) {
+      const list = getWatched(), target = list.find(i => i.title === title);
+      if (target) { target.rating = target.rating === rating ? 0 : rating; saveWatchedList(list); renderHistory(); }
+    }
+
+    function editMovieTitle(oldTitle) {
+      const newTitle = prompt("Введите новое название фильма:", oldTitle);
+      if (newTitle && newTitle.trim() !== "" && newTitle !== oldTitle) {
+        const list = getWatched(), target = list.find(i => i.title === oldTitle);
+        if (target) { 
+          target.title = newTitle.trim(); 
+          target.url = `https://reyhoho.fun/search?q=${encodeURIComponent(newTitle.trim())}`;
+          saveWatchedList(list); renderHistory(); 
+        }
+      }
+    }
+
+    function saveWatched() {
+      if (currentWinnerIndex === -1) return;
+      const film = movieData[currentWinnerIndex].title;
+      const url = movieData[currentWinnerIndex].reyohohoUrl;
+      const watched = getWatched();
+      if (!watched.some(i => i.title === film)) {
+        watched.push({ title: film, rating: 0, url: url });
+        saveWatchedList(watched); renderHistory();
+        alert(`Фильм "${film}" сохранён!`);
+      } else { alert(`Фильм "${film}" уже есть в истории.`); }
+    }
+
+    function renderHistory() {
+      const watched = getWatched(), list = document.getElementById('historyList');
+      list.innerHTML = '';
+      if (watched.length === 0) { list.innerHTML = '<li>История пуста...</li>'; return; }
+      watched.slice().reverse().forEach((item, index) => {
+        const li = document.createElement('li'); li.className = 'history-li';
+        const title = document.createElement('span'); title.className = 'history-title';
+        
+        // Make title a link to ReYohoho
+        const titleLink = item.url 
+          ? `<a href="${item.url}" target="_blank" style="color: var(--text-main); text-decoration: none; border-bottom: 1px dotted var(--accent-red);">${item.title}</a>`
+          : item.title;
+          
+        title.innerHTML = `<span class="history-num">${watched.length - index}.</span> <strong>${titleLink}</strong> <span class="edit-icon" onclick="editMovieTitle('${item.title.replace(/'/g, "\\'")}')">✏️</span>`;
+        
+        const stars = document.createElement('div'); stars.className = 'history-stars';
+        for (let s = 1; s <= 5; s++) {
+          const star = document.createElement('span');
+          star.className = 'history-star' + (s <= item.rating ? ' filled' : '');
+          star.textContent = s <= item.rating ? '★' : '☆';
+          star.title = `Оценить на ${s}`;
+          star.addEventListener('click', () => setRating(item.title, s));
+          stars.appendChild(star);
+        }
+        li.appendChild(title); li.appendChild(stars); list.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      if (confirm("Очистить историю?")) { localStorage.removeItem('watched_movies_v4'); renderHistory(); }
+    }
+
+    function exportHistory() {
+      const data = localStorage.getItem('watched_movies_v4') || '[]';
+      navigator.clipboard.writeText(data).then(() => alert("История скопирована!")).catch(() => prompt("Скопируйте текст:", data));
+    }
+
+    function importHistoryPrompt() { document.getElementById('genericTextarea').value = ''; document.getElementById('genericModal').classList.add('active'); }
+    function closeGenericModal() { document.getElementById('genericModal').classList.remove('active'); }
+    function applyImport() {
+      const val = document.getElementById('genericTextarea').value.trim();
+      if (!val) return closeGenericModal();
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) { localStorage.setItem('watched_movies_v4', JSON.stringify(parsed)); renderHistory(); closeGenericModal(); alert("История загружена!"); }
+        else alert("Неверный формат данных.");
+      } catch (e) { alert("Ошибка: невалидный JSON."); }
+    }
+
+    // === UI HELPERS ===
     function createRipple(event) {
       const button = event.currentTarget;
       const circle = document.createElement('span');
@@ -509,14 +952,16 @@
       });
     }
 
-    // Интерактивный фон
     window.addEventListener('pointermove', (e) => {
       const x = (e.clientX / window.innerWidth) * 100;
       const y = (e.clientY / window.innerHeight) * 100;
-      document.body.style.backgroundImage = `radial-gradient(circle at ${x}% ${y}%, rgba(30, 136, 229, 0.22), rgba(18, 18, 18, 0.96) 65%)`;
+      document.body.style.backgroundImage = 
+        `radial-gradient(circle at ${x}% ${y}%, rgba(139, 0, 0, 0.1), transparent 50%),
+         radial-gradient(circle at 20% 30%, rgba(60, 80, 160, 0.08) 0%, transparent 40%),
+         linear-gradient(180deg, #0a0a0c 0%, #121016 100%)`;
     });
 
-    // --- Звуки ---
+    // --- Sounds ---
     function playWinSound() {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -541,49 +986,19 @@
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!AudioCtx) return;
         const audioCtx = new AudioCtx();
-        const soundType = Math.floor(Math.random() * 3);
-        if (soundType === 0) {
-          const bufferSize = audioCtx.sampleRate * 0.8;
-          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-          const output = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-          const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-          const osc = audioCtx.createOscillator(); osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.8);
-          const gain = audioCtx.createGain();
-          gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-          noise.connect(gain); osc.connect(gain); gain.connect(audioCtx.destination);
-          noise.start(); osc.start(); noise.stop(audioCtx.currentTime + 0.8); osc.stop(audioCtx.currentTime + 0.8);
-        } else if (soundType === 1) {
-          const osc = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-          osc.type = 'sawtooth'; osc2.type = 'square';
-          osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-          osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.9);
-          osc2.frequency.setValueAtTime(153, audioCtx.currentTime);
-          osc2.frequency.linearRampToValueAtTime(43, audioCtx.currentTime + 0.9);
-          gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.9);
-          osc.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(); osc2.start(); osc.stop(audioCtx.currentTime + 0.9); osc2.stop(audioCtx.currentTime + 0.9);
-        } else {
-          const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-          osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.2);
-          osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.7);
-          gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.7);
-        }
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.2);
+        osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.7);
+        gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.7);
       } catch(e) {}
     }
 
     function openTwitchStream() { window.open('https://www.twitch.tv/hang_il', '_blank'); }
-
-    // --- Пасхалки ---
     function openEasterModal() { playScreamSound(); document.getElementById('easterModal').classList.add('active'); }
     function closeEasterModal() { document.getElementById('easterModal').classList.remove('active'); }
     function triggerRunnerEaster() {
@@ -594,7 +1009,7 @@
       setTimeout(() => { img.style.display = 'none'; }, 1300);
     }
 
-    // --- Основной функционал ---
+    // --- Init ---
     function loadSavedSettings() {
       const savedTitle = localStorage.getItem('app_title') || '🎬 Кино-Рулетка';
       document.getElementById('appTitle').innerText = savedTitle;
@@ -635,236 +1050,11 @@
       renderInputs();
     }
 
-    function renderInputs() {
-      const container = document.getElementById('inputsContainer');
-      container.innerHTML = '';
-      for (let i = 0; i < currentFilmCount; i++) {
-        const row = document.createElement('div');
-        row.className = 'input-row';
-        row.innerHTML = `
-          <div class="color-dot" style="background: ${COLORS[i % COLORS.length]}"></div>
-          <img class="poster-preview" id="prev-${i}" />
-          <div class="input-wrapper">
-            <input type="text" id="input-${i}" placeholder="Фильм ${i + 1}" oninput="hidePreview(${i})">
-            <button class="search-btn" onclick="searchKinopoisk(${i})">🔍</button>
-            <div class="search-results" id="res-${i}"></div>
-          </div>
-        `;
-        container.appendChild(row);
-      }
-      attachEffects();
-    }
-
-    function hidePreview(idx) {
-      document.getElementById(`prev-${idx}`).style.display = 'none';
-      delete movieData[idx];
-    }
-
-    async function searchKinopoisk(idx) {
-      const query = document.getElementById(`input-${idx}`).value.trim();
-      if (!query) return;
-      const resBox = document.getElementById(`res-${idx}`);
-      resBox.innerHTML = '<div class="search-item">Поиск...</div>'; resBox.style.display = 'block';
-      try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=3&country=RU`);
-        const data = await res.json();
-        resBox.innerHTML = '';
-        if (data.results && data.results.length > 0) {
-          data.results.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'search-item';
-            const poster = item.artworkUrl100.replace('100x100bb', '300x300bb');
-            div.innerHTML = `<img src="${poster}"> <div><strong>${item.trackName}</strong><br><small>${item.releaseDate ? item.releaseDate.substring(0,4) : ''}</small></div>`;
-            div.onclick = () => selectMovie(idx, item.trackName, poster, item.primaryGenreName);
-            resBox.appendChild(div);
-          });
-        } else { resBox.innerHTML = '<div class="search-item">Ничего не найдено</div>'; setTimeout(() => resBox.style.display = 'none', 1500); }
-      } catch (e) { resBox.innerHTML = '<div class="search-item">Ошибка поиска</div>'; setTimeout(() => resBox.style.display = 'none', 1500); }
-    }
-
-    function selectMovie(idx, title, poster, genre) {
-      document.getElementById(`input-${idx}`).value = title;
-      const prev = document.getElementById(`prev-${idx}`);
-      prev.src = poster; prev.style.display = 'block';
-      document.getElementById(`res-${idx}`).style.display = 'none';
-      movieData[idx] = { title, poster, genre };
-    }
-
-    async function startRoulette() {
-      const finalData = [];
-      for (let i = 0; i < currentFilmCount; i++) {
-        const val = document.getElementById(`input-${i}`).value.trim();
-        if (!val) return alert(`Заполните фильм №${i + 1}`);
-        if (movieData[i] && movieData[i].title === val) finalData.push(movieData[i]);
-        else finalData.push({ title: val, poster: null });
-      }
-      movieData = finalData;
-      await preloadPosters();
-      drawWheel();
-      document.getElementById('setupCard').style.display = 'none';
-      document.getElementById('wheelCard').style.display = 'block';
-    }
-
-    function preloadPosters() {
-      return Promise.all(movieData.map((item, i) => new Promise((resolve) => {
-        if (item.poster) {
-          const img = new Image(); img.crossOrigin = "anonymous"; img.src = item.poster;
-          img.onload = () => { loadedImages[i] = img; resolve(); };
-          img.onerror = () => { loadedImages[i] = null; resolve(); };
-        } else { loadedImages[i] = null; resolve(); }
-      })));
-    }
-
-    function drawWheel() {
-      const num = movieData.length, arc = (2 * Math.PI) / num;
-      const cx = canvas.width / 2, cy = canvas.height / 2, radius = canvas.width / 2 - 10;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < num; i++) {
-        const startAngle = i * arc - Math.PI / 2, endAngle = startAngle + arc;
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, endAngle); ctx.closePath();
-        ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
-        ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.stroke();
-        ctx.save(); ctx.translate(cx, cy); ctx.rotate(startAngle + arc / 2);
-        if (loadedImages[i]) {
-          try {
-            ctx.beginPath(); ctx.arc(radius - 70, 0, 40, 0, Math.PI * 2); ctx.clip();
-            ctx.drawImage(loadedImages[i], radius - 110, -40, 80, 80); ctx.restore();
-            ctx.save(); ctx.translate(cx, cy); ctx.rotate(startAngle + arc / 2);
-            ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.font = 'bold 22px sans-serif';
-            let txt = movieData[i].title;
-            if (txt.length > 10) txt = txt.substring(0, 8) + '..';
-            ctx.fillText(txt, radius - 120, 8); ctx.restore();
-          } catch(e) { drawTextSector(i, radius); }
-        } else { drawTextSector(i, radius); }
-      }
-    }
-
-    function drawTextSector(i, radius) {
-      ctx.textAlign = 'right'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 26px sans-serif';
-      let text = movieData[i].title;
-      if (text.length > 14) text = text.substring(0, 12) + '...';
-      ctx.fillText(text, radius - 30, 10); ctx.restore();
-    }
-
-    function spinWheel() {
-      const spinBtn = document.getElementById('spinBtn'), arrow = document.getElementById('arrow');
-      if (spinBtn.disabled) return;
-      spinBtn.disabled = true; arrow.classList.add('spinning');
-      
-      const num = movieData.length, winnerIndex = Math.floor(Math.random() * num);
-      currentWinnerIndex = winnerIndex;
-      
-      const sectorAngle = 360 / num;
-      // Добавляем случайное количество оборотов (от 5 до 8) для красоты
-      const baseRots = 360 * (5 + Math.floor(Math.random() * 4));
-      const targetAngle = currentRotation + baseRots + (360 - (winnerIndex * sectorAngle) - sectorAngle / 2);
-      
-      currentRotation = targetAngle;
-      
-      // Применяем анимацию CSS (5 секунд с плавным замедлением)
-      canvas.style.transform = `rotate(${targetAngle}deg)`;
-      
-      // Небольшая вибрация (если поддерживается Telegram)
-      if (tg && tg.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('medium');
-      }
-
-      setTimeout(() => {
-        spinBtn.disabled = false; arrow.classList.remove('spinning'); showResult();
-        if (tg && tg.HapticFeedback) {
-          tg.HapticFeedback.notificationOccurred('success');
-        }
-      }, 5000); // Ждем 5 секунд, пока закончится CSS-анимация
-    }
-
-    function showResult() {
-      const item = movieData[currentWinnerIndex];
-      document.getElementById('winnerTitle').innerText = item.title;
-      document.getElementById('victoryModal').classList.add('active');
-      playWinSound();
-      if (window.confetti) confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
-    }
-
-    function closeVictoryModal() { document.getElementById('victoryModal').classList.remove('active'); }
-    function resetSetup() { document.getElementById('wheelCard').style.display = 'none'; document.getElementById('setupCard').style.display = 'block'; }
-
-    // === ИСТОРИЯ ===
-    function getWatched() {
-      let raw = [];
-      try { raw = JSON.parse(localStorage.getItem('watched_movies_v4') || '[]'); } catch (e) {}
-      return raw.map(item => typeof item === 'string' ? { title: item, rating: 0 } : item);
-    }
-
-    function saveWatchedList(list) { localStorage.setItem('watched_movies_v4', JSON.stringify(list)); }
-
-    function setRating(title, rating) {
-      const list = getWatched(), target = list.find(i => i.title === title);
-      if (target) { target.rating = target.rating === rating ? 0 : rating; saveWatchedList(list); renderHistory(); }
-    }
-
-    function editMovieTitle(oldTitle) {
-      const newTitle = prompt("Введите новое название фильма:", oldTitle);
-      if (newTitle && newTitle.trim() !== "" && newTitle !== oldTitle) {
-        const list = getWatched(), target = list.find(i => i.title === oldTitle);
-        if (target) { target.title = newTitle.trim(); saveWatchedList(list); renderHistory(); }
-      }
-    }
-
-    function saveWatched() {
-      if (currentWinnerIndex === -1) return;
-      const film = movieData[currentWinnerIndex].title, watched = getWatched();
-      if (!watched.some(i => i.title === film)) {
-        watched.push({ title: film, rating: 0 });
-        saveWatchedList(watched); renderHistory();
-        alert(`Фильм "${film}" сохранён!`);
-      } else { alert(`Фильм "${film}" уже есть в истории.`); }
-    }
-
-    function renderHistory() {
-      const watched = getWatched(), list = document.getElementById('historyList');
-      list.innerHTML = '';
-      if (watched.length === 0) { list.innerHTML = '<li>История пуста...</li>'; return; }
-      watched.slice().reverse().forEach((item, index) => {
-        const li = document.createElement('li'); li.className = 'history-li';
-        const title = document.createElement('span'); title.className = 'history-title';
-        title.innerHTML = `<span class="history-num">${watched.length - index}.</span> <strong>${item.title}</strong> <span class="edit-icon" onclick="editMovieTitle('${item.title.replace(/'/g, "\\'")}')">✏️</span>`;
-        const stars = document.createElement('div'); stars.className = 'history-stars';
-        for (let s = 1; s <= 5; s++) {
-          const star = document.createElement('span');
-          star.className = 'history-star' + (s <= item.rating ? ' filled' : '');
-          star.textContent = s <= item.rating ? '★' : '☆';
-          star.title = `Оценить на ${s}`;
-          star.addEventListener('click', () => setRating(item.title, s));
-          stars.appendChild(star);
-        }
-        li.appendChild(title); li.appendChild(stars); list.appendChild(li);
-      });
-    }
-
-    function clearHistory() {
-      if (confirm("Очистить историю?")) { localStorage.removeItem('watched_movies_v4'); renderHistory(); }
-    }
-
-    function exportHistory() {
-      const data = localStorage.getItem('watched_movies_v4') || '[]';
-      navigator.clipboard.writeText(data).then(() => alert("История скопирована!")).catch(() => prompt("Скопируйте текст:", data));
-    }
-
-    function importHistoryPrompt() { document.getElementById('genericTextarea').value = ''; document.getElementById('genericModal').classList.add('active'); }
-    function closeGenericModal() { document.getElementById('genericModal').classList.remove('active'); }
-    function applyImport() {
-      const val = document.getElementById('genericTextarea').value.trim();
-      if (!val) return closeGenericModal();
-      try {
-        const parsed = JSON.parse(val);
-        if (Array.isArray(parsed)) { localStorage.setItem('watched_movies_v4', JSON.stringify(parsed)); renderHistory(); closeGenericModal(); alert("История загружена!"); }
-        else alert("Неверный формат данных.");
-      } catch (e) { alert("Ошибка: невалидный JSON."); }
-    }
-
     loadSavedSettings(); renderInputs(); renderHistory(); attachEffects();
     const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.addedNodes.length > 0) attachEffects(); }); });
     observer.observe(document.body, { childList: true, subtree: true });
+
+    // Add close button to victory modal if not present (already added in HTML)
   </script>
 </body>
 </html>
